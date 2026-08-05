@@ -34,7 +34,7 @@ const ExportPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedFields, setSelectedFields] = useState<FieldDef[]>(ALL_FIELDS.slice(0, 5))
-  const [showFieldMenu, setShowFieldMenu] = useState(false)
+  const [showAddMenu, setShowAddMenu] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -58,12 +58,15 @@ const ExportPage = () => {
     }
   }
 
-  const toggleField = (field: FieldDef) => {
-    if (selectedFields.some((f) => f.key === field.key)) {
-      setSelectedFields(selectedFields.filter((f) => f.key !== field.key))
-    } else {
+  const addField = (field: FieldDef) => {
+    if (!selectedFields.some((f) => f.key === field.key)) {
       setSelectedFields([...selectedFields, field])
     }
+    setShowAddMenu(false)
+  }
+
+  const removeField = (field: FieldDef) => {
+    setSelectedFields(selectedFields.filter((f) => f.key !== field.key))
   }
 
   const moveField = (from: number, to: number) => {
@@ -170,7 +173,12 @@ const ExportPage = () => {
         </ul>
         <hr className="border-secondary" />
         <div className="dropdown" style={{ padding: '0 1.5rem 1.5rem' }}>
-          <a href="#logout" className="d-flex align-items-center text-danger text-decoration-none" onClick={handleLogout} style={{ cursor: 'pointer' }}>
+          <a
+            href="#logout"
+            className="d-flex align-items-center text-danger text-decoration-none"
+            onClick={handleLogout}
+            style={{ cursor: 'pointer' }}
+          >
             <i className="me-2 bi bi-box-arrow-right"></i>
             <span>Log Keluar</span>
           </a>
@@ -181,68 +189,67 @@ const ExportPage = () => {
 
       <main className="main-content flex-grow-1" style={{ minWidth: 0 }}>
         <div className="container-fluid px-0">
-          {/* Toolbar: field selection */}
+          {/* Toolbar: column selection */}
           <div className="table-card card mb-4">
-            <div className="card-header d-flex justify-content-between align-items-center">
+            <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
               <h3 className="h6 fw-semibold mb-0 text-white">
                 <i className="bi bi-download me-2"></i> Eksport Data Ahli Kariah
               </h3>
               <div className="d-flex align-items-center gap-2">
-                <small className="text-muted mb-0">{selectedFields.length} field dipilih</small>
-                <div className="position-relative d-inline-block">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary btn-sm text-nowrap"
-                    onClick={() => setShowFieldMenu(!showFieldMenu)}
-                  >
-                    <i className="bi bi-funnel me-1"></i> Pilih Field
-                  </button>
-                  {showFieldMenu && (
-                    <div
-                      className="position-absolute top-100 start-auto translate-middle-x mt-1"
-                      style={{
-                        width: '280px',
-                        maxHeight: '340px',
-                        overflowY: 'auto',
-                        zIndex: 1040,
-                      }}
-                    >
-                      <div className="dropdown-menu show" style={{ width: '100%' }}>
-                        {ALL_FIELDS.map((f) => {
-                          const checked = selectedFields.some((sf) => sf.key === f.key)
-                          return (
-                            <label
-                              key={f.key}
-                              className="dropdown-item d-flex align-items-center"
-                              style={{ cursor: 'pointer' }}
-                            >
-                              <input
-                                type="checkbox"
-                                className="form-check-input me-2"
-                                checked={checked}
-                                onChange={() => toggleField(f)}
-                              />
-                              <span className="small">{f.label}</span>
-                            </label>
-                          )
-                        })}
-                      </div>
-                    </div>
+                <small className="text-muted mb-0">{selectedFields.length} column dipilih</small>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary btn-sm text-nowrap"
+                  onClick={() => setShowAddMenu(!showAddMenu)}
+                >
+                  <i className="bi bi-plus-lg me-1"></i> Add Column
+                </button>
+                <button className="btn btn-outline-success btn-sm" onClick={exportCSV} disabled={selectedFields.length === 0 || registrations.length === 0}>
+                  <i className="bi bi-filetype-csv me-1"></i> CSV
+                </button>
+                <button className="btn btn-outline-danger btn-sm" onClick={exportPDF} disabled={selectedFields.length === 0 || registrations.length === 0}>
+                  <i className="bi bi-file-pdf me-1"></i> PDF (Print)
+                </button>
+              </div>
+            </div>
+
+            {/* Add Column dropdown */}
+            {showAddMenu && (
+              <div
+                className="position-absolute top-100 start-auto translate-middle-x mt-1"
+                style={{ width: '240px', maxHeight: '340px', overflowY: 'auto', zIndex: 1040 }}
+              >
+                <div className="dropdown-menu show p-2" style={{ width: '100%' }}>
+                  <small className="text-muted d-block mb-1 px-1">Add column:</small>
+                  {ALL_FIELDS.filter((f) => !selectedFields.some((sf) => sf.key === f.key)).length === 0 ? (
+                    <span className="dropdown-item-text text-muted small">Semua column sudah aktif</span>
+                  ) : (
+                    ALL_FIELDS.filter((f) => !selectedFields.some((sf) => sf.key === f.key)).map((f) => (
+                      <button
+                        key={f.key}
+                        type="button"
+                        className="dropdown-item btn-sm text-start"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => addField(f)}
+                      >
+                        <i className="bi bi-plus me-1"></i> {f.label}
+                      </button>
+                    ))
                   )}
                 </div>
               </div>
-            </div>
-            <div className="px-3 py-2 border-bottom d-flex gap-2 align-items-center flex-wrap">
-              <small className="small text-muted mb-1">Susun semula field:</small>
+            )}
+
+            {/* Selected columns row */}
+            <div className="px-3 py-2 border-bottom d-flex flex-wrap gap-2 align-items-center">
               {selectedFields.length === 0 ? (
-                <span className="text-muted small fst-italic">Tiada field dipilih</span>
+                <span className="text-muted small fst-italic">Tiada column dipilih — klik "Add Column"</span>
               ) : (
-                <div className="d-flex flex-wrap gap-1 align-items-center" style={{ width: '100%' }}>
-                  {selectedFields.map((f, i) => (
-                    <span key={f.key} className="badge bg-secondary d-flex align-items-center">
-                      {f.label}
+                selectedFields.map((f, i) => (
+                  <span key={f.key} className="badge bg-secondary d-flex align-items-center gap-1">
+                    <span className="d-flex align-items-center">
                       <i
-                        className="bi bi-grip-vertical ms-1"
+                        className="bi bi-grip-vertical me-1"
                         style={{ cursor: 'grab', fontSize: '0.8em' }}
                         draggable
                         onDragStart={(e) => {
@@ -254,23 +261,17 @@ const ExportPage = () => {
                           if (!isNaN(from) && from !== i) moveField(from, i)
                         }}
                       ></i>
-                      <i
-                        className="bi bi-x-lg ms-1"
-                        style={{ cursor: 'pointer', fontSize: '0.7em' }}
-                        onClick={() => toggleField(f)}
-                      ></i>
+                      {f.label}
                     </span>
-                  ))}
-                </div>
+                    <i
+                      className="bi bi-x-lg ms-1"
+                      style={{ cursor: 'pointer', fontSize: '0.7em' }}
+                      onClick={() => removeField(f)}
+                      title="Delete column"
+                    ></i>
+                  </span>
+                ))
               )}
-            </div>
-            <div className="px-3 py-2 d-flex gap-2 justify-content-end">
-              <button className="btn btn-outline-success btn-sm" onClick={exportCSV} disabled={selectedFields.length === 0 || registrations.length === 0}>
-                <i className="bi bi-filetype-csv me-1"></i> CSV
-              </button>
-              <button className="btn btn-outline-danger btn-sm" onClick={exportPDF} disabled={selectedFields.length === 0 || registrations.length === 0}>
-                <i className="bi bi-file-pdf me-1"></i> PDF (Print)
-              </button>
             </div>
           </div>
 
@@ -283,15 +284,29 @@ const ExportPage = () => {
               <table className="table table-dark-custom table-hover align-middle mb-0">
                 <thead>
                   <tr>
-                    {selectedFields.map((f) => (
-                      <th key={f.key} scope="col">{f.label}</th>
-                    ))}
+                    {selectedFields.length === 0 ? (
+                      <th scope="col" className="text-muted fst-italic">Tiada column dipilih</th>
+                    ) : (
+                      selectedFields.map((f) => (
+                        <th key={f.key} scope="col">
+                          <span className="d-flex align-items-center gap-1">
+                            {f.label}
+                            <i
+                              className="bi bi-x-lg ms-1"
+                              style={{ cursor: 'pointer', fontSize: '0.7em', opacity: 0.5 }}
+                              onClick={() => removeField(f)}
+                              title="Delete column"
+                            ></i>
+                          </span>
+                        </th>
+                      ))
+                    )}
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={selectedFields.length} className="text-center py-4">
+                      <td colSpan={Math.max(selectedFields.length, 1)} className="text-center py-4">
                         <div className="spinner-border text-primary" role="status">
                           <span className="visually-hidden">Loading...</span>
                         </div>
@@ -299,7 +314,7 @@ const ExportPage = () => {
                     </tr>
                   ) : registrations.length === 0 ? (
                     <tr>
-                      <td colSpan={selectedFields.length} className="text-center py-4 text-muted">
+                      <td colSpan={Math.max(selectedFields.length, 1)} className="text-center py-4 text-muted">
                         Tiada rekod dijumpai.
                       </td>
                     </tr>
