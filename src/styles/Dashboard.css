@@ -213,9 +213,14 @@ body:has(.dashboard-app) .app-wrapper {
   padding: 0;
 }
 
+.dashboard-app .table-dark-custom {
+  background: #1e293b;
+  color: #c3c7d2;
+}
+
 .dashboard-app .table-dark-custom thead th {
   background: #0f172a;
-  color: #94a3a8;
+  color: #6c757d;
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -228,6 +233,16 @@ body:has(.dashboard-app) .app-wrapper {
   padding: 0.55rem 1rem;
   border-bottom: 1px solid #334159;
   font-size: 0.85rem;
+  color: #c3c7d2;
+  background: #1e293b;
+}
+
+.dashboard-app .table-dark-custom tbody tr {
+  background: #1e293b;
+}
+
+.dashboard-app .table-dark-custom tbody tr:nth-child(even) {
+  background: #232d40;
 }
 
 .dashboard-app .table-dark-custom tbody tr:hover {
