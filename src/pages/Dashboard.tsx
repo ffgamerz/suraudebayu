@@ -168,7 +168,7 @@ const Dashboard = () => {
             </a>
           </li>
           <li className="nav-item mb-1">
-            <a href="#ahli" className="nav-link text-white">
+            <a href="/ahli-kariah" className="nav-link text-white">
               <i className="me-2 bi bi-person"></i> Ahli Kariah
             </a>
           </li>

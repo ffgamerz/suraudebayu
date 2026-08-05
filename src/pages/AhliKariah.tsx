@@ -19,6 +19,8 @@ const AhliKariah = () => {
   const [editingRow, setEditingRow] = useState<RegistrationRow | null>(null)
   const [saving, setSaving] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -103,6 +105,15 @@ const AhliKariah = () => {
       return true
     })
   }, [registrations, search])
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginated = filtered.slice(startIndex, startIndex + itemsPerPage)
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
     <div className="dashboard-app d-flex min-vh-100">
@@ -194,7 +205,10 @@ const AhliKariah = () => {
                     className="form-control border-0 bg-secondary bg-opacity-10 text-white"
                     placeholder="Cari nama, IC, unit..."
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value)
+                      setCurrentPage(1)
+                    }}
                   />
                 </div>
               </div>
@@ -236,9 +250,9 @@ const AhliKariah = () => {
                       </td>
                     </tr>
                   ) : (
-                    filtered.map((r, i) => (
+                    paginated.map((r, i) => (
                       <tr key={r.id}>
-                        <td>{i + 1}</td>
+                        <td>{startIndex + i + 1}</td>
                         <td>{r.nama_pemohon}</td>
                         <td>{r.no_kad_pengenalan}</td>
                         <td>{r.alamat_dalam_kad_pengenalan}</td>
@@ -279,8 +293,36 @@ const AhliKariah = () => {
               </table>
             </div>
 
-            <div className="px-3 py-2 border-top">
-              <small className="text-muted">{filtered.length} ahli kariah</small>
+            <div className="px-3 py-2 border-top d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <small className="text-muted">
+                {filtered.length} ahli kariah · Halaman {currentPage} daripada {totalPages}
+              </small>
+              {totalPages > 1 && (
+                <nav>
+                  <ul className="pagination pagination-sm mb-0">
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                      <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Sebelumnya">
+                        <span aria-hidden="true">&laquo;</span>
+                      </button>
+                    </li>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                      if (totalPages <= 5 || Math.abs(page - currentPage) <= 2) {
+                        return (
+                          <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                            <button className="page-link" onClick={() => handlePageChange(page)}>{page}</button>
+                          </li>
+                        )
+                      }
+                      return null
+                    })}
+                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                      <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Seterusnya">
+                        <span aria-hidden="true">&raquo;</span>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              )}
             </div>
           </div>
         </div>
