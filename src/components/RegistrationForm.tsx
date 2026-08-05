@@ -183,7 +183,7 @@ export default function RegistrationForm() {
                   </label>
                   <input
                     type="text"
-                    className={`form-control form-control-sm ${errors.nama_pemohon ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm ${touched.nama_pemohon && errors.nama_pemohon ? 'is-invalid' : ''}`}
                     id="nama_pemohon"
                     name="nama_pemohon"
                     value={formData.nama_pemohon}
@@ -200,7 +200,7 @@ export default function RegistrationForm() {
                   </label>
                   <input
                     type="text"
-                    className={`form-control form-control-sm ${errors.no_kad_pengenalan ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm ${touched.no_kad_pengenalan && errors.no_kad_pengenalan ? 'is-invalid' : ''}`}
                     id="no_kad_pengenalan"
                     name="no_kad_pengenalan"
                     value={formData.no_kad_pengenalan}
@@ -218,7 +218,7 @@ export default function RegistrationForm() {
                   Alamat Dalam Kad Pengenalan <span className="text-danger">*</span>
                 </label>
                 <textarea
-                  className={`form-control form-control-sm ${errors.alamat_dalam_kad_pengenalan ? 'is-invalid' : ''}`}
+                  className={`form-control form-control-sm ${touched.alamat_dalam_kad_pengenalan && errors.alamat_dalam_kad_pengenalan ? 'is-invalid' : ''}`}
                   id="alamat_dalam_kad_pengenalan"
                   name="alamat_dalam_kad_pengenalan"
                   rows={2}
@@ -248,7 +248,7 @@ export default function RegistrationForm() {
                   </label>
                   <input
                     type="text"
-                    className={`form-control form-control-sm ${errors.no_unit ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm ${touched.no_unit && errors.no_unit ? 'is-invalid' : ''}`}
                     id="no_unit"
                     name="no_unit"
                     value={formData.no_unit}
@@ -264,7 +264,7 @@ export default function RegistrationForm() {
                     Status Pemilikan <span className="text-danger">*</span>
                   </label>
                   <select
-                    className={`form-select form-select-sm ${errors.status_pemilikan ? 'is-invalid' : ''}`}
+                    className={`form-select form-select-sm ${touched.status_pemilikan && errors.status_pemilikan ? 'is-invalid' : ''}`}
                     id="status_pemilikan"
                     name="status_pemilikan"
                     value={formData.status_pemilikan}
@@ -287,7 +287,7 @@ export default function RegistrationForm() {
                   </label>
                   <input
                     type="text"
-                    className={`form-control form-control-sm ${errors.no_hp ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm ${touched.no_hp && errors.no_hp ? 'is-invalid' : ''}`}
                     id="no_hp"
                     name="no_hp"
                     value={formData.no_hp}
@@ -302,7 +302,7 @@ export default function RegistrationForm() {
                   <label htmlFor="email" className="form-label">Email</label>
                   <input
                     type="email"
-                    className={`form-control form-control-sm ${errors.email ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm ${touched.email && errors.email ? 'is-invalid' : ''}`}
                     id="email"
                     name="email"
                     value={formData.email}
@@ -321,7 +321,7 @@ export default function RegistrationForm() {
                     Status Perkahwinan <span className="text-danger">*</span>
                   </label>
                   <select
-                    className={`form-select form-select-sm ${errors.status_perkahwinan ? 'is-invalid' : ''}`}
+                    className={`form-select form-select-sm ${touched.status_perkahwinan && errors.status_perkahwinan ? 'is-invalid' : ''}`}
                     id="status_perkahwinan"
                     name="status_perkahwinan"
                     value={formData.status_perkahwinan}
@@ -340,7 +340,7 @@ export default function RegistrationForm() {
                     Tempoh Masa Telah Menetap (Tahun) <span className="text-danger">*</span>
                   </label>
                   <select
-                    className={`form-select form-select-sm ${errors.tempoh_masa_menetap ? 'is-invalid' : ''}`}
+                    className={`form-select form-select-sm ${touched.tempoh_masa_menetap && errors.tempoh_masa_menetap ? 'is-invalid' : ''}`}
                     id="tempoh_masa_menetap"
                     name="tempoh_masa_menetap"
                     value={formData.tempoh_masa_menetap}
@@ -366,7 +366,7 @@ export default function RegistrationForm() {
                   Bilangan ahli keluarga / isi rumah tidak termasuk ketua keluarga
                 </small>
                 <select
-                  className={`form-select form-select-sm ${errors.bilangan_isi_rumah ? 'is-invalid' : ''}`}
+                  className={`form-select form-select-sm ${touched.bilangan_isi_rumah && errors.bilangan_isi_rumah ? 'is-invalid' : ''}`}
                   id="bilangan_isi_rumah"
                   name="bilangan_isi_rumah"
                   value={formData.bilangan_isi_rumah}
@@ -385,7 +385,7 @@ export default function RegistrationForm() {
               <div className="mt-3">
                 <div className="form-check">
                   <input
-                    className={`form-check-input ${errors.pengakuan ? 'is-invalid' : ''}`}
+                    className={`form-check-input ${touched.pengakuan && errors.pengakuan ? 'is-invalid' : ''}`}
                     type="checkbox"
                     id="pengakuan"
                     name="pengakuan"
