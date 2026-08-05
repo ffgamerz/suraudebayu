@@ -22,7 +22,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 15
+  const itemsPerPage = 10
   const [search, setSearch] = useState('')
   const [filterBlock, setFilterBlock] = useState('')
   const [filterOwner, setFilterOwner] = useState('')
@@ -83,7 +83,6 @@ const Dashboard = () => {
     return result
   }, [registrations, search, filterBlock, filterOwner, dateFrom, dateTo, sortKey, sortOrder])
 
-  const totalPages = Math.ceil(filtered.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginated = filtered.slice(startIndex, startIndex + itemsPerPage)
 
@@ -404,30 +403,6 @@ const Dashboard = () => {
                 </tbody>
               </table>
             </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="px-3 py-2 border-top d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <small className="text-muted">
-                  Halaman {currentPage} daripada {totalPages}
-                </small>
-                <nav>
-                  <ul className="pagination pagination-sm mb-0">
-                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                      <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>Sebelumnya</button>
-                    </li>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
-                        <button className="page-link" onClick={() => setCurrentPage(page)}>{page}</button>
-                      </li>
-                    ))}
-                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                      <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>Seterusnya</button>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
-            )}
           </div>
         </div>
       </main>
