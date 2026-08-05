@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import AhliKariah from './pages/AhliKariah'
+import ExportPage from './pages/Export'
 import RegistrationForm from './components/RegistrationForm'
 import './App.css'
 
@@ -17,6 +18,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/ahli-kariah" element={<ProtectedRoute><AhliKariah /></ProtectedRoute>} />
+            <Route path="/export" element={<ProtectedRoute><ExportPage /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
