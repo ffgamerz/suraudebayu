@@ -134,6 +134,11 @@ const AhliKariah = () => {
             </a>
           </li>
           <li className="nav-item mb-1">
+            <a href="/export" className="nav-link text-white">
+              <i className="me-2 bi bi-download"></i> Eksport Data
+            </a>
+          </li>
+          <li className="nav-item mb-1">
             <a href="#pendaftaran" className="nav-link text-white">
               <i className="me-2 bi bi-list-ul"></i> Pendaftaran
             </a>
