@@ -203,7 +203,7 @@ const ExportPage = () => {
       <main className="main-content flex-grow-1" style={{ minWidth: 0 }}>
         <div className="container-fluid px-0">
           {/* Toolbar: column selection */}
-          <div className="table-card card mb-4">
+          <div className="table-card card mb-4" style={{ overflow: 'visible' }}>
             <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
               <h3 className="h6 fw-semibold mb-0 text-white">
                 <i className="bi bi-download me-2"></i> Eksport Data Ahli Kariah
