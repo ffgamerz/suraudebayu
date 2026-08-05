@@ -271,12 +271,24 @@ const Dashboard = () => {
         onClick={() => setSidebarOpen(false)}
       />
 
+      {/* ===== Mobile Header (hamburger, <992px only) ===== */}
+      <header className="mobile-header">
+        <button
+          className="btn btn-outline-secondary btn-sm menu-btn"
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <i className="bi bi-list"></i>
+        </button>
+        <h1 className="h6 fw-semibold mb-0 text-white">Surau De Bayu</h1>
+      </header>
+
       {/* ===== Main Content ===== */}
-      <main className="main-content">
+      <main className="main-content flex-grow-1" style={{ minWidth: 0 }}>
         {/* Stats Cards */}
         <div className="container-fluid px-0">
           <div className="stats-grid row g-3 mb-4">
-            <div className="col stat-card card h-100 border-0">
+            <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0">
               <div className="card-body text-center">
                 <i className="stat-icon mb-2 bi bi-speedometer2 fs-4"></i>
                 <p className="stat-label mb-1">Jumlah Pendaftaran</p>
@@ -284,7 +296,7 @@ const Dashboard = () => {
               </div>
             </div>
             {stats.blocks.map((b) => (
-              <div className="col stat-card card h-100 border-0" key={b.label}>
+              <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0" key={b.label}>
                 <div className="card-body text-center">
                   <i className="stat-icon mb-2 bi bi-building fs-4"></i>
                   <p className="stat-label mb-1">{b.label}</p>
@@ -292,7 +304,7 @@ const Dashboard = () => {
                 </div>
               </div>
             ))}
-            <div className="col stat-card card h-100 border-0">
+            <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0">
               <div className="card-body text-center">
                 <i className="stat-icon mb-2 bi bi-person fs-4"></i>
                 <p className="stat-label mb-1">Penyewa</p>
@@ -301,7 +313,7 @@ const Dashboard = () => {
                 </h2>
               </div>
             </div>
-            <div className="col stat-card card h-100 border-0">
+            <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0">
               <div className="card-body text-center">
                 <i className="stat-icon mb-2 bi bi-person-check fs-4"></i>
                 <p className="stat-label mb-1">Pemilik</p>
@@ -310,7 +322,7 @@ const Dashboard = () => {
                 </h2>
               </div>
             </div>
-            <div className="col stat-card card h-100 border-0">
+            <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0">
               <div className="card-body text-center">
                 <i className="stat-icon mb-2 bi bi-bell fs-4"></i>
                 <p className="stat-label mb-1">Aktiviti Hari Ini</p>
@@ -342,9 +354,9 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Desktop filter row */}
-            <div className="px-3 py-2 border-bottom d-none d-lg-flex align-items-center gap-3 flex-wrap">
-              <div>
+            {/* Filter row (responsive) */}
+            <div className="row g-2 g-lg-3 px-3 py-2 border-bottom align-items-end">
+              <div className="col-6 col-lg-auto">
                 <label className="form-label small text-muted mb-1">Blok</label>
                 <select
                   className="filter-select form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
@@ -357,7 +369,7 @@ const Dashboard = () => {
                   <option value="DB03">Blok 3</option>
                 </select>
               </div>
-              <div>
+              <div className="col-6 col-lg-auto">
                 <label className="form-label small text-muted mb-1">Pemilik</label>
                 <select
                   className="filter-select form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
@@ -369,7 +381,7 @@ const Dashboard = () => {
                   <option value="Penyewa">Penyewa</option>
                 </select>
               </div>
-              <div>
+              <div className="col-6 col-lg-auto">
                 <label className="form-label small text-muted mb-1">Dari</label>
                 <input
                   type="date"
@@ -378,7 +390,7 @@ const Dashboard = () => {
                   onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1) }}
                 />
               </div>
-              <div>
+              <div className="col-6 col-lg-auto">
                 <label className="form-label small text-muted mb-1">Sehingga</label>
                 <input
                   type="date"
@@ -387,7 +399,7 @@ const Dashboard = () => {
                   onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1) }}
                 />
               </div>
-              <div className="mt-auto">
+              <div className="col-12 col-lg-auto">
                 <button className="btn btn-outline-secondary btn-sm w-100" onClick={clearAllFilters}>
                   Reset
                 </button>

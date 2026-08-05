@@ -1,5 +1,24 @@
 /* ===== Dashboard Dark Sidebar Theme (Mockup 1 port) ===== */
 
+/* ===== Full-page dark theme (only active when dashboard is mounted) ===== */
+body:has(.dashboard-app) {
+  background: #0f172a;
+}
+
+body:has(.dashboard-app) #root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  border-inline: none;
+}
+
+body:has(.dashboard-app) .app-wrapper {
+  padding: 0;
+  display: block;
+  min-height: 100vh;
+}
+
 .dashboard-app {
   background: #0f172a;
   color: #e2e8f0;
