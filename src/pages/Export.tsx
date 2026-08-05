@@ -77,35 +77,55 @@ const ExportPage = () => {
 
   const hasSavedConfig = () => {
     try {
-      const saved = localStorage.getItem('kariahExportColumns')
-      return saved !== null
+      const raw = localStorage.getItem('kariahExportConfigs')
+      return raw !== null && JSON.parse(raw).length > 0
     } catch {
       return false
     }
   }
 
+  type SavedConfig = { name: string; fields: string[] }
+
   const saveColumnConfig = () => {
     const name = window.prompt('Nama config column (cth: Default Ahli):', 'config_' + new Date().toLocaleDateString('ms-MY'))
     if (!name) return
     const keys = selectedFields.map((f) => f.key)
-    localStorage.setItem('kariahExportColumns', JSON.stringify({ name, fields: keys }))
-    showToast(`Column config tersimpan: "${name}"`)
+    let configs: SavedConfig[] = []
+    try {
+      configs = JSON.parse(localStorage.getItem('kariahExportConfigs') || '[]')
+    } catch {
+      configs = []
+    }
+    const filtered = configs.filter((c) => c.name !== name)
+    localStorage.setItem('kariahExportConfigs', JSON.stringify([...filtered, { name, fields: keys }]))
+    showToast(`Column config disave: "${name}"`)
   }
 
   const loadColumnConfig = () => {
+    let configs: SavedConfig[] = []
     try {
-      const raw = localStorage.getItem('kariahExportColumns')
-      if (!raw) return
-      const config = JSON.parse(raw) as { name: string; fields: string[] }
-      const loaded = config.fields
-        .map((key) => ALL_FIELDS.find((f) => f.key === key))
-        .filter((f): f is FieldDef => Boolean(f))
-      if (loaded.length > 0) {
-        setSelectedFields(loaded)
-        showToast(`Column config dimuat: "${config.name}"`)
-      }
+      configs = JSON.parse(localStorage.getItem('kariahExportConfigs') || '[]')
     } catch {
-      // ignore malformed
+      configs = []
+    }
+    if (configs.length === 0) {
+      showToast('Tiada config tersimpan')
+      return
+    }
+    const names = configs.map((c) => c.name).join('\n')
+    const sel = window.prompt('Pilih config:\n' + names, configs[0].name)
+    if (!sel) return
+    const found = configs.find((c) => c.name === sel)
+    if (!found) {
+      showToast('Config tak jumpa')
+      return
+    }
+    const loaded = found.fields
+      .map((key) => ALL_FIELDS.find((f) => f.key === key))
+      .filter((f): f is FieldDef => Boolean(f))
+    if (loaded.length > 0) {
+      setSelectedFields(loaded)
+      showToast(`Column config dimuat: "${found.name}"`)
     }
   }
 
@@ -361,22 +381,15 @@ const ExportPage = () => {
 
       {/* ===== Error Toast ===== */}
       {error && (
-        <div className="toast-container position-fixed bottom-0 end-0 p-3">
-          <div className="toast align-items-center text-bg-danger border-0" role="alert">
-            <div className="d-flex">
-              <div className="toast-body">{error}</div>
-              <button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setError('')}></button>
-            </div>
-          </div>
+        <div className="position-fixed bottom-0 end-0 m-3 p-3 bg-danger bg-opacity-75 text-white rounded shadow" style={{ zIndex: 2050, maxWidth: '320px' }}>
+          {error}
         </div>
       )}
 
       {/* ===== Success Toast (save/load) ===== */}
       {toast && (
-        <div className="toast-container position-fixed bottom-0 end-0 p-3">
-          <div className="toast align-items-center text-bg-success border-0" role="alert">
-            <div className="toast-body">{toast}</div>
-          </div>
+        <div className="position-fixed bottom-0 end-0 m-3 p-3 bg-success bg-opacity-75 text-white rounded shadow" style={{ zIndex: 2050, maxWidth: '320px' }}>
+          {toast}
         </div>
       )}
     </div>
