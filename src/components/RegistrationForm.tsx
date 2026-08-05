@@ -191,7 +191,7 @@ export default function RegistrationForm() {
                     onBlur={handleBlur}
                     placeholder="Masukkan nama penuh"
                   />
-                  {errors.nama_pemohon && <div className="invalid-feedback">{errors.nama_pemohon}</div>}
+                  {touched.nama_pemohon && errors.nama_pemohon && <div className="invalid-feedback">{errors.nama_pemohon}</div>}
                 </div>
 
                 <div className="col-md-6">
@@ -208,7 +208,7 @@ export default function RegistrationForm() {
                     onBlur={handleBlur}
                     placeholder="470911101234 (tanpa -)"
                   />
-                  {errors.no_kad_pengenalan && <div className="invalid-feedback">{errors.no_kad_pengenalan}</div>}
+                  {touched.no_kad_pengenalan && errors.no_kad_pengenalan && <div className="invalid-feedback">{errors.no_kad_pengenalan}</div>}
                 </div>
               </div>
 
@@ -227,7 +227,7 @@ export default function RegistrationForm() {
                     onBlur={handleBlur}
                     placeholder="Alamat seperti di kad pengenalan"
                 />
-                {errors.alamat_dalam_kad_pengenalan && (
+                {touched.alamat_dalam_kad_pengenalan && errors.alamat_dalam_kad_pengenalan && (
                   <div className="invalid-feedback">{errors.alamat_dalam_kad_pengenalan}</div>
                 )}
               </div>
@@ -256,7 +256,7 @@ export default function RegistrationForm() {
                     onBlur={handleBlur}
                     placeholder="DB01-01-01 (Blok-Tingkat-Unit)"
                   />
-                  {errors.no_unit && <div className="invalid-feedback">{errors.no_unit}</div>}
+                  {touched.no_unit && errors.no_unit && <div className="invalid-feedback">{errors.no_unit}</div>}
                 </div>
 
                 <div className="col-md-6">
@@ -275,7 +275,7 @@ export default function RegistrationForm() {
                     <option value="Pemilik">Pemilik</option>
                     <option value="Penyewa">Penyewa</option>
                   </select>
-                  {errors.status_pemilikan && <div className="invalid-feedback">{errors.status_pemilikan}</div>}
+                  {touched.status_pemilikan && errors.status_pemilikan && <div className="invalid-feedback">{errors.status_pemilikan}</div>}
                 </div>
               </div>
 
@@ -295,7 +295,7 @@ export default function RegistrationForm() {
                     onBlur={handleBlur}
                     placeholder="0123456789"
                   />
-                  {errors.no_hp && <div className="invalid-feedback">{errors.no_hp}</div>}
+                  {touched.no_hp && errors.no_hp && <div className="invalid-feedback">{errors.no_hp}</div>}
                 </div>
 
                 <div className="col-md-6">
@@ -310,7 +310,7 @@ export default function RegistrationForm() {
                     onBlur={handleBlur}
                     placeholder="nama@email.com (optional)"
                   />
-                  {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                  {touched.email && errors.email && <div className="invalid-feedback">{errors.email}</div>}
                 </div>
               </div>
 
@@ -332,7 +332,7 @@ export default function RegistrationForm() {
                     <option value="Bujang">Bujang</option>
                     <option value="Berkahwin">Berkahwin</option>
                   </select>
-                  {errors.status_perkahwinan && <div className="invalid-feedback">{errors.status_perkahwinan}</div>}
+                  {touched.status_perkahwinan && errors.status_perkahwinan && <div className="invalid-feedback">{errors.status_perkahwinan}</div>}
                 </div>
 
                 <div className="col-md-6">
@@ -353,7 +353,7 @@ export default function RegistrationForm() {
                       <option key={y} value={y}>{y}</option>
                     ))}
                   </select>
-                  {errors.tempoh_masa_menetap && <div className="invalid-feedback">{errors.tempoh_masa_menetap}</div>}
+                  {touched.tempoh_masa_menetap && errors.tempoh_masa_menetap && <div className="invalid-feedback">{errors.tempoh_masa_menetap}</div>}
                 </div>
               </div>
 
@@ -378,7 +378,7 @@ export default function RegistrationForm() {
                     <option key={n} value={n}>{n}</option>
                   ))}
                 </select>
-                {errors.bilangan_isi_rumah && <div className="invalid-feedback">{errors.bilangan_isi_rumah}</div>}
+                {touched.bilangan_isi_rumah && errors.bilangan_isi_rumah && <div className="invalid-feedback">{errors.bilangan_isi_rumah}</div>}
               </div>
 
               {/* Pengakuan */}
@@ -396,7 +396,7 @@ export default function RegistrationForm() {
                   <label className="form-check-label" htmlFor="pengakuan">
                     Saya mengaku bahawa segala maklumat yang terkandung diatas adalah benar.
                   </label>
-                  {errors.pengakuan && <div className="text-danger small mt-1">{errors.pengakuan}</div>}
+                  {touched.pengakuan && errors.pengakuan && <div className="text-danger small mt-1">{errors.pengakuan}</div>}
                 </div>
               </div>
             </form>
