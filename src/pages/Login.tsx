@@ -40,7 +40,7 @@ const Login = () => {
   }
 
   return (
-    <div className="d-flex justify-content-center align-items-center min-vh-100">
+    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-dashboard">
       <div className="card shadow-lg" style={{ width: '420px', border: 'none', borderRadius: '12px' }}>
         <div className="card-body p-5">
           <div className="text-center mb-4">
@@ -55,14 +55,16 @@ const Login = () => {
           </div>
 
           {error && (
-            <div className="alert alert-danger small mb-3">
+            <div className="alert alert-danger small mb-3" role="alert">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
+              <label htmlFor="email" className="form-label small text-muted">
+                Email
+              </label>
               <input
                 type="email"
                 id="email"
@@ -75,7 +77,9 @@ const Login = () => {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="password" className="form-label">Kata Laluan</label>
+              <label htmlFor="password" className="form-label small text-muted">
+                Kata Laluan
+              </label>
               <input
                 type="password"
                 id="password"
