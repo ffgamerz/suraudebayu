@@ -28,10 +28,8 @@ const Dashboard = () => {
   const [filterOwner, setFilterOwner] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
-  const [editingRow, setEditingRow] = useState<RegistrationRow | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [sortKey, setSortKey] = useState<'nama_pemohon' | 'created_at' | 'no_unit'>('created_at')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const sortKey = 'created_at' as const
+  const sortOrder: 'asc' | 'desc' = 'desc'
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -53,15 +51,6 @@ const Dashboard = () => {
       setError((err as any)?.message || 'Gagal memuatkan data')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const toggleSort = (key: 'nama_pemohon' | 'no_unit') => {
-    if (sortKey === key) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortKey(key)
-      setSortOrder('asc')
     }
   }
 
@@ -88,7 +77,7 @@ const Dashboard = () => {
       const aVal = a[sortKey] ?? ''
       const bVal = b[sortKey] ?? ''
       const cmp = String(aVal).localeCompare(String(bVal))
-      return sortOrder === 'asc' ? cmp : -cmp
+      return (sortOrder as 'asc' | 'desc') === 'asc' ? cmp : -cmp
     })
 
     return result
@@ -150,49 +139,6 @@ const Dashboard = () => {
     a.download = `kariah_suraudebayu_${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     URL.revokeObjectURL(url)
-  }
-
-  const handleDelete = async (id: number) => {
-    if (!confirm('Padam rekod ini? Tindakan tidak boleh dibatalkan.')) return
-    try {
-      const { error: delError } = await supabase.from('kariah_registrations').delete().eq('id', id)
-      if (delError) throw delError
-      setRegistrations((prev) => prev.filter((r) => r.id !== id))
-    } catch (err) {
-      setError((err as any)?.message || 'Gagal memadam rekod')
-    }
-  }
-
-  const handleSave = async (updated: RegistrationRow) => {
-    setSaving(true)
-    try {
-      const { error: updateError } = await supabase
-        .from('kariah_registrations')
-        .update({
-          nama_pemohon: updated.nama_pemohon,
-          no_kad_pengenalan: updated.no_kad_pengenalan,
-          alamat_dalam_kad_pengenalan: updated.alamat_dalam_kad_pengenalan,
-          no_unit: updated.no_unit,
-          status_pemilikan: updated.status_pemilikan,
-          no_hp: updated.no_hp,
-          email: updated.email,
-          status_perkahwinan: updated.status_perkahwinan,
-          tempoh_masa_menetap: updated.tempoh_masa_menetap,
-          bilangan_isi_rumah: updated.bilangan_isi_rumah,
-          pengakuan: updated.pengakuan,
-        })
-        .eq('id', updated.id)
-
-      if (updateError) throw updateError
-      setRegistrations((prev) =>
-        prev.map((r) => (r.id === updated.id ? { ...updated } : r))
-      )
-      setEditingRow(null)
-    } catch (err) {
-      setError((err as any)?.message || 'Gagal mengemaskini rekod')
-    } finally {
-      setSaving(false)
-    }
   }
 
   const handleLogout = async () => {
@@ -419,35 +365,16 @@ const Dashboard = () => {
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">
-                      <button
-                        className="btn btn-link btn-sm p-0 text-decoration-none"
-                        onClick={() => toggleSort('nama_pemohon')}
-                      >
-                        Nama Pemohon {sortKey === 'nama_pemohon' && (sortOrder === 'asc' ? '↑' : '↓')}
-                      </button>
-                    </th>
-                    <th scope="col">No. Kad Pengenalan</th>
-                    <th scope="col">
-                      <button
-                        className="btn btn-link btn-sm p-0 text-decoration-none"
-                        onClick={() => toggleSort('no_unit')}
-                      >
-                        No Unit {sortKey === 'no_unit' && (sortOrder === 'asc' ? '↑' : '↓')}
-                      </button>
-                    </th>
+                    <th scope="col">Nama Pemohon</th>
+                    <th scope="col">No Unit</th>
                     <th scope="col">Status</th>
-                    <th scope="col">No H/P</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Isi Rumah</th>
-                    <th scope="col">Tarikh</th>
-                    <th scope="col" className="text-end">Tindakan</th>
+                    <th scope="col">Tarikh Daftar</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={10} className="text-center py-4">
+                      <td colSpan={5} className="text-center py-4">
                         <div className="spinner-border text-primary" role="status">
                           <span className="visually-hidden">Loading...</span>
                         </div>
@@ -455,7 +382,7 @@ const Dashboard = () => {
                     </tr>
                   ) : paginated.length === 0 ? (
                     <tr>
-                      <td colSpan={10} className="text-center py-4 text-muted">
+                      <td colSpan={6} className="text-center py-4 text-muted">
                         Tiada rekod dijumpai.
                       </td>
                     </tr>
@@ -464,92 +391,18 @@ const Dashboard = () => {
                       <tr key={r.id}>
                         <td>{startIndex + i + 1}</td>
                         <td>{r.nama_pemohon}</td>
-                        <td>{r.no_kad_pengenalan}</td>
                         <td>{r.no_unit}</td>
                         <td>
                           <span className={`badge ${r.status_pemilikan === 'Pemilik' ? 'badge-owner' : 'badge-tenant'}`}>
                             {r.status_pemilikan}
                           </span>
                         </td>
-                        <td>{r.no_hp}</td>
-                        <td>{r.email || <span className="text-muted small">—</span>}</td>
-                        <td>{r.bilangan_isi_rumah}</td>
                         <td>{new Date(r.created_at).toLocaleDateString('ms-MY')}</td>
-                        <td className="text-end">
-                          <div className="btn-group btn-group-sm" role="group">
-                            <button
-                              className="btn btn-outline-secondary text-primary"
-                              title="Edit"
-                              onClick={() => setEditingRow(r)}
-                            >
-                              <i className="bi bi-pencil"></i>
-                            </button>
-                            <button
-                              className="btn btn-outline-secondary text-danger ms-1"
-                              title="Padam"
-                              onClick={() => handleDelete(r.id)}
-                            >
-                              <i className="bi bi-trash"></i>
-                            </button>
-                          </div>
-                        </td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
-            </div>
-
-            {/* Mobile card list */}
-            <div className="d-lg-none">
-              {loading ? (
-                <div className="text-center py-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                </div>
-              ) : paginated.length === 0 ? (
-                <p className="text-center py-4 text-muted mb-0">Tiada rekod dijumpai.</p>
-              ) : (
-                <ul className="list-group">
-                  {paginated.map((r, i) => (
-                    <li key={r.id} className="list-group-item border-bottom py-3">
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <div className="fw-medium text-white">#{startIndex + i + 1} — {r.nama_pemohon}</div>
-                        <div className="btn-group btn-group-sm" role="group">
-                          <button
-                            className="btn btn-outline-secondary text-primary"
-                            title="Edit"
-                            onClick={() => setEditingRow(r)}
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                          <button
-                            className="btn btn-outline-secondary text-danger ms-1"
-                            title="Padam"
-                            onClick={() => handleDelete(r.id)}
-                          >
-                            <i className="bi bi-trash"></i>
-                          </button>
-                        </div>
-                      </div>
-                      <div className="d-grid gap-1 small text-muted">
-                        <div><span className="fw-medium text-white">IC:</span> {r.no_kad_pengenalan}</div>
-                        <div><span className="fw-medium text-white">Unit:</span> {r.no_unit}</div>
-                        <div><span className="fw-medium text-white">Status:</span>
-                          <span className={`badge ms-1 ${r.status_pemilikan === 'Pemilik' ? 'badge-owner' : 'badge-tenant'}`}>
-                            {r.status_pemilikan}
-                          </span>
-                        </div>
-                        <div><span className="fw-medium text-white">HP:</span> {r.no_hp}</div>
-                        <div><span className="fw-medium text-white">Isi:</span> {r.bilangan_isi_rumah}</div>
-                        <div><span className="fw-medium text-white">Tarikh:</span> {new Date(r.created_at).toLocaleDateString('ms-MY')}</div>
-                        {r.email && <div><span className="fw-medium text-white">Email:</span> {r.email}</div>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
 
             {/* Pagination */}
@@ -578,141 +431,6 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
-
-      {/* ===== Edit Modal ===== */}
-      {editingRow && (
-        <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050 }} tabIndex={-1}>
-          <div className="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-lg-down">
-            <div className="modal-content">
-              <form onSubmit={(e) => {
-                e.preventDefault()
-                handleSave(editingRow)
-              }}>
-                <div className="modal-header">
-                  <h5 className="modal-title">Kemaskini Maklumat</h5>
-                  <button type="button" className="btn-close btn-close-white" onClick={() => setEditingRow(null)}></button>
-                </div>
-                <div className="modal-body">
-                  <div className="row g-3">
-                    <div className="col-12">
-                      <label className="form-label small text-muted">Nama Pemohon</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={editingRow.nama_pemohon}
-                        onChange={(e) => setEditingRow({ ...editingRow, nama_pemohon: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label small text-muted">No. Kad Pengenalan</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={editingRow.no_kad_pengenalan}
-                        onChange={(e) => setEditingRow({ ...editingRow, no_kad_pengenalan: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label small text-muted">Alamat</label>
-                      <textarea
-                        className="form-control"
-                        rows={2}
-                        value={editingRow.alamat_dalam_kad_pengenalan}
-                        onChange={(e) => setEditingRow({ ...editingRow, alamat_dalam_kad_pengenalan: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label small text-muted">No Unit</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={editingRow.no_unit}
-                        onChange={(e) => setEditingRow({ ...editingRow, no_unit: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label small text-muted">Status Pemilikan</label>
-                      <select
-                        className="form-select"
-                        value={editingRow.status_pemilikan}
-                        onChange={(e) => setEditingRow({ ...editingRow, status_pemilikan: e.target.value as 'Pemilik' | 'Penyewa' })}
-                        required
-                      >
-                        <option value="Pemilik">Pemilik</option>
-                        <option value="Penyewa">Penyewa</option>
-                      </select>
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label small text-muted">No H/P</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={editingRow.no_hp}
-                        onChange={(e) => setEditingRow({ ...editingRow, no_hp: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label small text-muted">Email</label>
-                      <input
-                        type="email"
-                        className="form-control"
-                        value={editingRow.email || ''}
-                        onChange={(e) => setEditingRow({ ...editingRow, email: e.target.value })}
-                      />
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label small text-muted">Perkahwinan</label>
-                      <select
-                        className="form-select"
-                        value={editingRow.status_perkahwinan}
-                        onChange={(e) => setEditingRow({ ...editingRow, status_perkahwinan: e.target.value as 'Bujang' | 'Berkahwin' })}
-                        required
-                      >
-                        <option value="Bujang">Bujang</option>
-                        <option value="Berkahwin">Berkahwin</option>
-                      </select>
-                    </div>
-                    <div className="col-12">
-                      <label className="form-label small text-muted">Isi Rumah</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        min="1"
-                        max="10"
-                        value={editingRow.bilangan_isi_rumah}
-                        onChange={(e) => setEditingRow({ ...editingRow, bilangan_isi_rumah: (parseInt(e.target.value) || 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 })}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary btn-sm"
-                    onClick={() => setEditingRow(null)}
-                    disabled={saving}
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-sm"
-                    disabled={saving}
-                  >
-                    {saving ? 'Menyimpan...' : 'Simpan'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
 
       {error && (
         <div className="toast-container position-fixed bottom-0 end-0 p-3">
