@@ -212,11 +212,32 @@ const Dashboard = () => {
 
   return (
     <div className="d-flex min-vh-100 bg-light">
-      {/* ===== Sidebar ===== */}
-      <aside className="d-flex flex-column flex-shrink-0 p-3 bg-dark text-white" style={{ width: '260px' }}>
+      {/* ===== Mobile Header (visible on small screens) ===== */}
+      <header className="d-lg-none d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
+        <button
+          className="btn btn-outline-secondary btn-sm"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sidebarOffcanvas"
+        >
+          ☰
+        </button>
+        <h1 className="h6 fw-semibold mb-0">Dashboard</h1>
+        <div className="d-flex align-items-center gap-2">
+          <span className="position-relative">
+            <span className="fs-5">🔔</span>
+            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              3
+            </span>
+          </span>
+        </div>
+      </header>
+
+      {/* ===== Sidebar (desktop only) ===== */}
+      <aside className="d-none d-lg-block d-flex flex-column flex-shrink-0 p-3 bg-dark text-white" style={{ width: '260px', minWidth: '260px' }}>
         <a href="/" className="d-flex align-items-center text-white text-decoration-none mb-4">
-          <span className="fs-3 me-2"></span>
-          <span className="fs-5 fw-semibold">Surau De Bayu</span>
+          <span className="fs-3 me-2">Surau</span>
+          <span className="fs-5 fw-semibold">De Bayu</span>
         </a>
         <hr className="border-secondary" />
         <ul className="nav nav-pills flex-column mb-auto">
@@ -259,6 +280,25 @@ const Dashboard = () => {
         </div>
       </aside>
 
+      {/* ===== Mobile Offcanvas Sidebar ===== */}
+      <div className="offcanvas offcanvas-start d-lg-none" tabIndex={-1} id="sidebarOffcanvas">
+        <div className="offcanvas-header">
+          <h5 className="offcanvas-title mb-0">Menu</h5>
+          <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div className="offcanvas-body p-0">
+          <nav className="flex-column nav">
+            <a href="#" className="nav-link active">Dashboard</a>
+            <a href="#" className="nav-link text-dark">Ahli Kariah</a>
+            <a href="#" className="nav-link text-dark">Pendaftaran</a>
+            <a href="#" className="nav-link text-dark">Acara</a>
+            <a href="#" className="nav-link text-dark">Pengumuman</a>
+            <hr className="my-2" />
+            <a href="#" className="nav-link text-danger" onClick={handleLogout} style={{ cursor: 'pointer' }}>Log Keluar</a>
+          </nav>
+        </div>
+      </div>
+
       {/* ===== Main Content ===== */}
       <main className="flex-column flex-grow-1 overflow-hidden">
         {/* Header */}
@@ -287,7 +327,7 @@ const Dashboard = () => {
         {/* Stats Cards */}
         <div className="container-fluid p-4">
           <div className="row g-3 mb-4">
-            <div className="col-12 col-sm-6 col-xxl-2">
+            <div className="col-12 col-sm-6 col-xl">
               <div className="card h-100 border-0 shadow-sm">
                 <div className="card-body text-center">
                   <p className="text-uppercase small text-muted mb-1">Jumlah Pendaftaran</p>
@@ -296,7 +336,7 @@ const Dashboard = () => {
               </div>
             </div>
             {stats.blocks.map((b) => (
-              <div className="col-12 col-sm-6 col-xxl-2" key={b.label}>
+              <div className="col-12 col-sm-6 col-xl" key={b.label}>
                 <div className="card h-100 border-0 shadow-sm">
                   <div className="card-body text-center">
                     <p className="text-uppercase small text-muted mb-1">{b.label}</p>
@@ -305,7 +345,7 @@ const Dashboard = () => {
                 </div>
               </div>
             ))}
-            <div className="col-12 col-sm-6 col-xxl-2">
+            <div className="col-12 col-sm-6 col-xl">
               <div className="card h-100 border-0 shadow-sm">
                 <div className="card-body text-center">
                   <p className="text-uppercase small text-muted mb-1">Penyewa</p>
@@ -315,7 +355,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <div className="col-12 col-sm-6 col-xxl-2">
+            <div className="col-12 col-sm-6 col-xl">
               <div className="card h-100 border-0 shadow-sm">
                 <div className="card-body text-center">
                   <p className="text-uppercase small text-muted mb-1">Pemilik</p>
@@ -325,7 +365,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <div className="col-12 col-sm-6 col-xxl-2">
+            <div className="col-12 col-sm-6 col-xl">
               <div className="card h-100 border-0 shadow-sm">
                 <div className="card-body text-center">
                   <p className="text-uppercase small text-muted mb-1">Aktiviti Hari Ini</p>
@@ -399,7 +439,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="px-3 py-2 border-bottom d-flex align-items-center flex-wrap gap-3">
+            <div className="px-3 py-2 border-bottom d-flex align-items-center flex-column flex-sm-row gap-3">
               <div>
                 <label className="form-label small text-muted mb-1">Blok</label>
                 <select
@@ -429,7 +469,7 @@ const Dashboard = () => {
                 <label className="form-label small text-muted mb-1">Dari</label>
                 <input
                   type="date"
-                  className="form-control form-control-sm"
+                  className="form-control form-control-sm" style={{ fontSize: "16px" }}
                   value={dateFrom}
                   onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1) }}
                 />
@@ -438,7 +478,7 @@ const Dashboard = () => {
                 <label className="form-label small text-muted mb-1">Sehingga</label>
                 <input
                   type="date"
-                  className="form-control form-control-sm"
+                  className="form-control form-control-sm" style={{ fontSize: "16px" }}
                   value={dateTo}
                   onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1) }}
                 />
@@ -514,14 +554,14 @@ const Dashboard = () => {
                         <td className="text-end">
                           <div className="btn-group btn-group-sm" role="group">
                             <button
-                              className="btn btn-outline-primary"
+                              className="btn btn-outline-primary btn-sm py-1"
                               title="Edit"
                               onClick={() => setEditingRow(r)}
                             >
                               
                             </button>
                             <button
-                              className="btn btn-outline-danger"
+                              className="btn btn-outline-danger btn-sm py-1"
                               title="Padam"
                               onClick={() => handleDelete(r.id)}
                             >
