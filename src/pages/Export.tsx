@@ -99,33 +99,36 @@ const ExportPage = () => {
     const filtered = configs.filter((c) => c.name !== name)
     localStorage.setItem('kariahExportConfigs', JSON.stringify([...filtered, { name, fields: keys }]))
     showToast(`Column config disave: "${name}"`)
+    setShowLoadMenu(false)
   }
 
-  const loadColumnConfig = () => {
+  const applyConfig = (cfg: SavedConfig) => {
+    const loaded = cfg.fields
+      .map((key) => ALL_FIELDS.find((f) => f.key === key))
+      .filter((f): f is FieldDef => Boolean(f))
+    if (loaded.length > 0) {
+      setSelectedFields(loaded)
+      showToast(`Column config dimuat: "${cfg.name}"`)
+    }
+    setShowLoadMenu(false)
+  }
+
+  const deleteConfig = (name: string) => {
     let configs: SavedConfig[] = []
     try {
       configs = JSON.parse(localStorage.getItem('kariahExportConfigs') || '[]')
     } catch {
       configs = []
     }
-    if (configs.length === 0) {
-      showToast('Tiada config tersimpan')
-      return
-    }
-    const names = configs.map((c) => c.name).join('\n')
-    const sel = window.prompt('Pilih config:\n' + names, configs[0].name)
-    if (!sel) return
-    const found = configs.find((c) => c.name === sel)
-    if (!found) {
-      showToast('Config tak jumpa')
-      return
-    }
-    const loaded = found.fields
-      .map((key) => ALL_FIELDS.find((f) => f.key === key))
-      .filter((f): f is FieldDef => Boolean(f))
-    if (loaded.length > 0) {
-      setSelectedFields(loaded)
-      showToast(`Column config dimuat: "${found.name}"`)
+    localStorage.setItem('kariahExportConfigs', JSON.stringify(configs.filter((c) => c.name !== name)))
+    showToast(`Config dihapus: "${name}"`)
+  }
+
+  const getSavedConfigs = (): SavedConfig[] => {
+    try {
+      return JSON.parse(localStorage.getItem('kariahExportConfigs') || '[]') as SavedConfig[]
+    } catch {
+      return []
     }
   }
 
@@ -253,7 +256,7 @@ const ExportPage = () => {
               <h3 className="h6 fw-semibold mb-0 text-white">
                 <i className="bi bi-download me-2"></i> Eksport Data Ahli Kariah
               </h3>
-              <div className="d-flex align-items-center gap-2">
+              <div className="d-flex align-items-center flex-wrap gap-2">
                 <small className="text-muted mb-0">{selectedFields.length} column dipilih</small>
                 <div className="dropdown">
                   <button
@@ -264,12 +267,6 @@ const ExportPage = () => {
                     aria-expanded="false"
                   >
                     <i className="bi bi-plus-lg me-1"></i> Add Column
-                  </button>
-                  <button className="btn btn-outline-secondary btn-sm" onClick={saveColumnConfig} disabled={selectedFields.length === 0}>
-                    <i className="bi bi-save me-1"></i> Save
-                  </button>
-                  <button className="btn btn-outline-secondary btn-sm" onClick={loadColumnConfig} disabled={!hasSavedConfig()}>
-                    <i className="bi bi-upload me-1"></i> Load
                   </button>
                   <ul className="dropdown-menu dropdown-menu-dark bg-dark border-secondary" style={{ maxHeight: '340px', overflowY: 'auto' }}>
                     {ALL_FIELDS.filter((f) => !selectedFields.some((sf) => sf.key === f.key)).length === 0 ? (
@@ -289,6 +286,37 @@ const ExportPage = () => {
                       ))
                     )}
                   </ul>
+                </div>
+                <button className="btn btn-outline-secondary btn-sm" onClick={saveColumnConfig} disabled={selectedFields.length === 0}>
+                  <i className="bi bi-save me-1"></i> Save
+                </button>
+                <div className="dropdown">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    data-bs-display="static"
+                    disabled={!hasSavedConfig()}
+                    aria-expanded="false"
+                  >
+                    <i className="bi bi-upload me-1"></i> Load
+                  </button>
+                  {hasSavedConfig() && (
+                    <ul className="dropdown-menu dropdown-menu-dark bg-dark border-secondary" style={{ maxHeight: '340px', overflowY: 'auto' }}>
+                      {getSavedConfigs().map((cfg) => (
+                        <li key={cfg.name}>
+                          <div className="d-flex justify-content-between align-items-center">
+                            <button className="dropdown-item btn-sm text-start" style={{ cursor: 'pointer' }} onClick={() => applyConfig(cfg)}>
+                              {cfg.name}
+                            </button>
+                            <button className="btn btn-sm btn-outline-secondary" style={{ minWidth: '32px', padding: '2px 6px' }} onClick={() => deleteConfig(cfg.name)}>
+                              <i className="bi bi-x"></i>
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
                 <button className="btn btn-outline-success btn-sm" onClick={exportCSV} disabled={selectedFields.length === 0 || registrations.length === 0}>
                   <i className="bi bi-filetype-csv me-1"></i> CSV
