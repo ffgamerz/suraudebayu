@@ -17,7 +17,7 @@ const BLOCK_LABELS: Record<string, string> = {
 }
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth()
+  const { signOut } = useAuth()
   const [registrations, setRegistrations] = useState<RegistrationRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -209,8 +209,6 @@ const Dashboard = () => {
     setCurrentPage(1)
   }
 
-  const recentActivity = registrations.slice(0, 5)
-
   return (
     <div className="dashboard-app d-flex min-vh-100">
       {/* ===== Sidebar ===== */}
@@ -273,59 +271,12 @@ const Dashboard = () => {
         onClick={() => setSidebarOpen(false)}
       />
 
-      {/* ===== Topbar ===== */}
-      <header className="topbar">
-        <div className="d-flex align-items-center gap-3">
-          <button
-            className="btn btn-outline-secondary btn-sm menu-btn d-lg-none"
-            type="button"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <i className="bi bi-list"></i>
-          </button>
-          <h1 className="h6 fw-semibold mb-0 text-white">Dashboard Kariah</h1>
-        </div>
-        <div className="d-flex align-items-center gap-3">
-          <button className="btn btn-outline-secondary btn-sm">
-            <i className="bi bi-gear"></i>
-          </button>
-          <span className="text-muted small" style={{ display: 'none' }}>{user?.email}</span>
-          <img
-            src="https://via.placeholder.com/36"
-            alt="User"
-            className="rounded-circle"
-            width="36"
-            height="36"
-          />
-        </div>
-      </header>
-
-      {/* ===== Mobile Header ===== */}
-      <header className="mobile-header">
-        <button
-          className="btn btn-outline-secondary btn-sm menu-btn"
-          type="button"
-          onClick={() => setSidebarOpen(true)}
-        >
-          <i className="bi bi-list"></i>
-        </button>
-        <h1 className="h6 fw-semibold mb-0 text-white">Dashboard</h1>
-        <div className="d-flex align-items-center gap-2">
-          <span className="position-relative text-white">
-            <i className="bi bi-bell fs-5"></i>
-            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              3
-            </span>
-          </span>
-        </div>
-      </header>
-
       {/* ===== Main Content ===== */}
-      <main className="main-content flex-column flex-lg-row flex-grow-1 overflow-hidden">
+      <main className="main-content">
         {/* Stats Cards */}
         <div className="container-fluid px-0">
           <div className="stats-grid row g-3 mb-4">
-            <div className="stat-card card h-100 border-0">
+            <div className="col stat-card card h-100 border-0">
               <div className="card-body text-center">
                 <i className="stat-icon mb-2 bi bi-speedometer2 fs-4"></i>
                 <p className="stat-label mb-1">Jumlah Pendaftaran</p>
@@ -333,7 +284,7 @@ const Dashboard = () => {
               </div>
             </div>
             {stats.blocks.map((b) => (
-              <div className="stat-card card h-100 border-0" key={b.label}>
+              <div className="col stat-card card h-100 border-0" key={b.label}>
                 <div className="card-body text-center">
                   <i className="stat-icon mb-2 bi bi-building fs-4"></i>
                   <p className="stat-label mb-1">{b.label}</p>
@@ -341,7 +292,7 @@ const Dashboard = () => {
                 </div>
               </div>
             ))}
-            <div className="stat-card card h-100 border-0">
+            <div className="col stat-card card h-100 border-0">
               <div className="card-body text-center">
                 <i className="stat-icon mb-2 bi bi-person fs-4"></i>
                 <p className="stat-label mb-1">Penyewa</p>
@@ -350,7 +301,7 @@ const Dashboard = () => {
                 </h2>
               </div>
             </div>
-            <div className="stat-card card h-100 border-0">
+            <div className="col stat-card card h-100 border-0">
               <div className="card-body text-center">
                 <i className="stat-icon mb-2 bi bi-person-check fs-4"></i>
                 <p className="stat-label mb-1">Pemilik</p>
@@ -359,7 +310,7 @@ const Dashboard = () => {
                 </h2>
               </div>
             </div>
-            <div className="stat-card card h-100 border-0">
+            <div className="col stat-card card h-100 border-0">
               <div className="card-body text-center">
                 <i className="stat-icon mb-2 bi bi-bell fs-4"></i>
                 <p className="stat-label mb-1">Aktiviti Hari Ini</p>
@@ -368,51 +319,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Activity Feed */}
-          <div className="row g-3 mb-4">
-            <div className="col-12">
-              <div className="table-card">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <h3 className="h6 fw-semibold mb-0 text-white"><i className="bi bi-bell me-2"></i> Aktiviti Terkini</h3>
-                </div>
-                <div className="card-body p-0">
-                  <ul className="list-group list-group-flush activity-list">
-                    {recentActivity.length === 0 ? (
-                      <li className="list-group-item text-center text-muted py-3 border-0">
-                        Tiada aktiviti
-                      </li>
-                    ) : (
-                      recentActivity.map((r) => (
-                        <li key={r.id} className="list-group-item border-0 py-2">
-                          <div className="d-flex align-items-center">
-                            <div className="flex-shrink-0 me-3">
-                              <div className="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
-                                <span className="text-primary fw-bold">{r.nama_pemohon?.charAt(0) || '?'}</span>
-                              </div>
-                            </div>
-                            <div className="flex-grow-1">
-                              <p className="mb-0 fw-medium small text-white">
-                                {r.nama_pemohon} mendaftar unit {r.no_unit}
-                              </p>
-                              <p className="mb-0 text-muted xsmall">
-                                {new Date(r.created_at).toLocaleString('ms-MY', {
-                                  year: 'numeric', month: 'short', day: 'numeric',
-                                  hour: '2-digit', minute: '2-digit'
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Registrations Table */}
-          <div className="table-card">
+          <div className="table-card card">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h3 className="h6 fw-semibold mb-0 text-white"><i className="bi bi-journal-text me-2"></i> Senarai Pendaftar</h3>
               <div className="d-flex gap-2 flex-wrap">
