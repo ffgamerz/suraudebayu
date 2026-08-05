@@ -34,6 +34,7 @@ const ExportPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedFields, setSelectedFields] = useState<FieldDef[]>([])
+  const [toast, setToast] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -74,34 +75,43 @@ const ExportPage = () => {
     setSelectedFields(reordered)
   }
 
-  const saveColumnConfig = () => {
-    const config = {
-      name: 'export-config',
-      timestamp: new Date().toISOString(),
-      fields: selectedFields.map((f) => f.key),
+  const hasSavedConfig = () => {
+    try {
+      const saved = localStorage.getItem('kariahExportColumns')
+      return saved !== null
+    } catch {
+      return false
     }
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `kariah-column-config_${new Date().toISOString().split('T')[0]}.json`
-    a.click()
-    URL.revokeObjectURL(url)
   }
 
-  const loadColumnConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      const config = JSON.parse(ev.target?.result as string)
+  const saveColumnConfig = () => {
+    const name = window.prompt('Nama config column (cth: Default Ahli):', 'config_' + new Date().toLocaleDateString('ms-MY'))
+    if (!name) return
+    const keys = selectedFields.map((f) => f.key)
+    localStorage.setItem('kariahExportColumns', JSON.stringify({ name, fields: keys }))
+    showToast(`Column config tersimpan: "${name}"`)
+  }
+
+  const loadColumnConfig = () => {
+    try {
+      const raw = localStorage.getItem('kariahExportColumns')
+      if (!raw) return
+      const config = JSON.parse(raw) as { name: string; fields: string[] }
       const loaded = config.fields
-        .map((key: string) => ALL_FIELDS.find((f) => f.key === key))
-        .filter(Boolean)
-      setSelectedFields(loaded)
+        .map((key) => ALL_FIELDS.find((f) => f.key === key))
+        .filter((f): f is FieldDef => Boolean(f))
+      if (loaded.length > 0) {
+        setSelectedFields(loaded)
+        showToast(`Column config dimuat: "${config.name}"`)
+      }
+    } catch {
+      // ignore malformed
     }
-    reader.readAsText(file)
-    e.target.value = ''
+  }
+
+  const showToast = (msg: string) => {
+    setToast(msg)
+    setTimeout(() => setToast(''), 3000)
   }
 
   const handleLogout = async () => {
@@ -235,6 +245,12 @@ const ExportPage = () => {
                   >
                     <i className="bi bi-plus-lg me-1"></i> Add Column
                   </button>
+                  <button className="btn btn-outline-secondary btn-sm" onClick={saveColumnConfig} disabled={selectedFields.length === 0}>
+                    <i className="bi bi-save me-1"></i> Save
+                  </button>
+                  <button className="btn btn-outline-secondary btn-sm" onClick={loadColumnConfig} disabled={!hasSavedConfig()}>
+                    <i className="bi bi-upload me-1"></i> Load
+                  </button>
                   <ul className="dropdown-menu dropdown-menu-dark bg-dark border-secondary" style={{ maxHeight: '340px', overflowY: 'auto' }}>
                     {ALL_FIELDS.filter((f) => !selectedFields.some((sf) => sf.key === f.key)).length === 0 ? (
                       <li><span className="dropdown-item-text text-muted small">Semua column sudah aktif</span></li>
@@ -259,13 +275,6 @@ const ExportPage = () => {
                 </button>
                 <button className="btn btn-outline-danger btn-sm" onClick={exportPDF} disabled={selectedFields.length === 0 || registrations.length === 0}>
                   <i className="bi bi-file-pdf me-1"></i> PDF (Print)
-                </button>
-                <button className="btn btn-outline-secondary btn-sm" onClick={saveColumnConfig} disabled={selectedFields.length === 0}>
-                  <i className="bi bi-save me-1"></i> Save
-                </button>
-                <button type="button" className="btn btn-outline-secondary btn-sm">
-                  <i className="bi bi-upload me-1"></i> Load
-                  <input type="file" accept=".json" className="d-none" onChange={loadColumnConfig} />
                 </button>
               </div>
             </div>
@@ -358,6 +367,15 @@ const ExportPage = () => {
               <div className="toast-body">{error}</div>
               <button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setError('')}></button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Success Toast (save/load) ===== */}
+      {toast && (
+        <div className="toast-container position-fixed bottom-0 end-0 p-3">
+          <div className="toast align-items-center text-bg-success border-0" role="alert">
+            <div className="toast-body">{toast}</div>
           </div>
         </div>
       )}
