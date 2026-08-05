@@ -110,7 +110,7 @@ export default function RegistrationForm() {
   // Success state — show confirmation instead of form
   if (isSubmitted) {
     return (
-      <div className="container">
+      <div className="container bg-dash min-vh-100">
         <div className="form-container mx-auto">
           <div className="form-card card">
             <div className="card-header">
@@ -148,7 +148,7 @@ export default function RegistrationForm() {
   }
 
   return (
-    <div className="container">
+    <div className="container bg-dash min-vh-100">
       <div className="form-container mx-auto">
         <div className="form-card card">
           {/* Header */}

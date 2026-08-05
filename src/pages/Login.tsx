@@ -40,7 +40,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-dashboard">
+    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-dash">
       <div className="card shadow-lg" style={{ width: '420px', border: 'none', borderRadius: '12px' }}>
         <div className="card-body p-5">
           <div className="text-center mb-4">

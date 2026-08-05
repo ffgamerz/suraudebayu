@@ -47,8 +47,8 @@ const Dashboard = () => {
 
       if (fetchError) throw fetchError
       setRegistrations(data || [])
-    } catch (err: any) {
-      setError(err.message || 'Gagal memuatkan data')
+    } catch (err) {
+      setError((err as any)?.message || 'Gagal memuatkan data')
     } finally {
       setLoading(false)
     }
@@ -117,8 +117,9 @@ const Dashboard = () => {
         label: k,
         count: v,
       })),
+      today: filtered.filter(r => new Date(r.created_at).toDateString() === new Date().toDateString()).length,
     }
-  }, [registrations])
+  }, [registrations, filtered])
 
   const exportCSV = () => {
     const headers = ['No', 'Nama Pemohon', 'No. Kad Pengenalan', 'Alamat', 'No Unit',
@@ -151,13 +152,13 @@ const Dashboard = () => {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Padam rekod ini? Tindakan tidak boleh dibuang kerja semula.')) return
+    if (!confirm('Padam rekod ini? Tindakan tidak boleh dibatalkan.')) return
     try {
       const { error: delError } = await supabase.from('kariah_registrations').delete().eq('id', id)
       if (delError) throw delError
       setRegistrations((prev) => prev.filter((r) => r.id !== id))
-    } catch (err: any) {
-      setError(err.message || 'Gagal memadam rekod')
+    } catch (err) {
+      setError((err as any)?.message || 'Gagal memadam rekod')
     }
   }
 
@@ -186,8 +187,8 @@ const Dashboard = () => {
         prev.map((r) => (r.id === updated.id ? { ...updated } : r))
       )
       setEditingRow(null)
-    } catch (err: any) {
-      setError(err.message || 'Gagal mengemaskini rekod')
+    } catch (err) {
+      setError((err as any)?.message || 'Gagal mengemaskini rekod')
     } finally {
       setSaving(false)
     }
@@ -207,409 +208,356 @@ const Dashboard = () => {
     setCurrentPage(1)
   }
 
-  // Activity feed (last 5 registrations)
   const recentActivity = registrations.slice(0, 5)
 
   return (
-    <div className="dashboard-page min-vh-100">
+    <div className="d-flex min-vh-100 bg-light">
       {/* ===== Sidebar ===== */}
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-brand">
-          <div className="d-flex align-items-center">
-            <div className="sidebar-logo me-3">🕌</div>
-            <span className="sidebar-title">Surau De Bayu</span>
-          </div>
-        </div>
-        <div className="sidebar-divider" />
-        <nav className="sidebar-nav">
-          <div className="sidebar-nav-item active">
-            <span className="nav-icon me-3">📊</span>
-            <span>Dashboard</span>
-          </div>
-          <div className="sidebar-nav-item">
-            <span className="nav-icon me-3">👥</span>
-            <span>Ahli Kariah</span>
-          </div>
-          <div className="sidebar-nav-item">
-            <span className="nav-icon me-3">✅</span>
-            <span>Pendaftaran</span>
-          </div>
-          <div className="sidebar-nav-item">
-            <span className="nav-icon me-3">📅</span>
-            <span>Acara</span>
-          </div>
-          <div className="sidebar-nav-item">
-            <span className="nav-icon me-3">📢</span>
-            <span>Pengumuman</span>
-          </div>
-        </nav>
-        <div className="sidebar-divider" />
-        <div className="sidebar-nav-item text-white" onClick={handleLogout} style={{ cursor: 'pointer', marginTop: 'auto' }}>
-          <span className="nav-icon me-3">🚪</span>
-          <span>Log Keluar</span>
+      <aside className="d-flex flex-column flex-shrink-0 p-3 bg-dark text-white" style={{ width: '260px' }}>
+        <a href="/" className="d-flex align-items-center text-white text-decoration-none mb-4">
+          <span className="fs-3 me-2"></span>
+          <span className="fs-5 fw-semibold">Surau De Bayu</span>
+        </a>
+        <hr className="border-secondary" />
+        <ul className="nav nav-pills flex-column mb-auto">
+          <li className="nav-item mb-1">
+            <a href="#" className="nav-link active" aria-current="page">
+              Dashboard
+            </a>
+          </li>
+          <li className="nav-item mb-1">
+            <a href="#" className="nav-link text-white">
+              Ahli Kariah
+            </a>
+          </li>
+          <li className="nav-item mb-1">
+            <a href="#" className="nav-link text-white">
+              Pendaftaran
+            </a>
+          </li>
+          <li className="nav-item mb-1">
+            <a href="#" className="nav-link text-white">
+              Acara
+            </a>
+          </li>
+          <li className="nav-item mb-1">
+            <a href="#" className="nav-link text-white">
+              Pengumuman
+            </a>
+          </li>
+        </ul>
+        <hr className="border-secondary" />
+        <div className="dropdown">
+          <a
+            href="#"
+            className="d-flex align-items-center text-white text-decoration-none"
+            onClick={handleLogout}
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="fs-6">Log Keluar</span>
+          </a>
         </div>
       </aside>
 
       {/* ===== Main Content ===== */}
-      <main className="dashboard-main">
+      <main className="flex-column flex-grow-1 overflow-hidden">
         {/* Header */}
-        <header className="dashboard-header">
+        <header className="d-flex justify-content-between align-items-center p-4 bg-white border-bottom">
           <div>
-            <h1 className="dashboard-title">Dashboard Kariah</h1>
-            <p className="dashboard-subtitle">Selamat datang, {user?.email}</p>
+            <h1 className="h3 fw-semibold mb-1">Dashboard Kariah</h1>
+            <p className="text-muted mb-0">Selamat datang, {user?.email}</p>
           </div>
-          <div className="header-actions">
-            <div className="notification-bell">
-              🔔
-              <span className="badge bg-danger rounded-pill">3</span>
-            </div>
+          <div className="d-flex align-items-center gap-3">
+            <span className="position-relative">
+              <span className="fs-5"></span>
+              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                3
+              </span>
+            </span>
             <img
               src="https://via.placeholder.com/36"
               alt="User"
-              className="user-avatar"
+              className="rounded-circle"
+              width="36"
+              height="36"
             />
           </div>
         </header>
 
-        {error && <div className="alert alert-danger small">{error}</div>}
-
         {/* Stats Cards */}
-        <div className="container-fluid px-4 py-3">
+        <div className="container-fluid p-4">
           <div className="row g-3 mb-4">
-            <div className="col-xxl-2 col-md-4">
-              <div className="dashboard-card stats-card-primary h-100">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div>
-                      <p className="text-uppercase fw-semibold small mb-2 text-muted">Jumlah Pendaftaran</p>
-                      <h2 className="mb-0 fw-bold text-gradient-primary">{stats.total}</h2>
-                    </div>
-                    <div className="stats-icon-wrapper">
-                      <span>📊</span>
-                    </div>
-                  </div>
-                  <p className="small text-muted mb-0 mt-2">Semua masa</p>
+            <div className="col-12 col-sm-6 col-xxl-2">
+              <div className="card h-100 border-0 shadow-sm">
+                <div className="card-body text-center">
+                  <p className="text-uppercase small text-muted mb-1">Jumlah Pendaftaran</p>
+                  <h2 className="fw-bold mb-0">{stats.total}</h2>
                 </div>
               </div>
             </div>
             {stats.blocks.map((b) => (
-              <div className="col-xxl-2 col-md-4" key={b.label}>
-                <div className="dashboard-card stats-card-teal h-100">
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div>
-                        <p className="text-uppercase fw-semibold small mb-2 text-muted">{b.label}</p>
-                        <h2 className="mb-0 fw-bold text-gradient-teal">{b.count}</h2>
-                      </div>
-                      <div className="stats-icon-wrapper">
-                        <span>🏢</span>
-                      </div>
-                    </div>
+              <div className="col-12 col-sm-6 col-xxl-2" key={b.label}>
+                <div className="card h-100 border-0 shadow-sm">
+                  <div className="card-body text-center">
+                    <p className="text-uppercase small text-muted mb-1">{b.label}</p>
+                    <h2 className="fw-bold mb-0">{b.count}</h2>
                   </div>
                 </div>
               </div>
             ))}
-            <div className="col-xxl-2 col-md-4">
-              <div className="dashboard-card stats-card-red h-100">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div>
-                      <p className="text-uppercase fw-semibold small mb-2 text-muted">Penyewa</p>
-                      <h2 className="mb-0 fw-bold text-gradient-red">
-                        {stats.owners.find((o) => o.label === 'Penyewa')?.count || 0}
-                      </h2>
-                    </div>
-                    <div className="stats-icon-wrapper">
-                      <span>👨‍👩‍👧‍👦</span>
-                    </div>
-                  </div>
+            <div className="col-12 col-sm-6 col-xxl-2">
+              <div className="card h-100 border-0 shadow-sm">
+                <div className="card-body text-center">
+                  <p className="text-uppercase small text-muted mb-1">Penyewa</p>
+                  <h2 className="fw-bold text-danger mb-0">
+                    {stats.owners.find((o) => o.label === 'Penyewa')?.count || 0}
+                  </h2>
                 </div>
               </div>
             </div>
-            <div className="col-xxl-2 col-md-4">
-              <div className="dashboard-card stats-card-purple h-100">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div>
-                      <p className="text-uppercase fw-semibold small mb-2 text-muted">Pemilik</p>
-                      <h2 className="mb-0 fw-bold text-gradient-purple">
-                        {stats.owners.find((o) => o.label === 'Pemilik')?.count || 0}
-                      </h2>
-                    </div>
-                    <div className="stats-icon-wrapper">
-                      <span>🔑</span>
-                    </div>
-                  </div>
+            <div className="col-12 col-sm-6 col-xxl-2">
+              <div className="card h-100 border-0 shadow-sm">
+                <div className="card-body text-center">
+                  <p className="text-uppercase small text-muted mb-1">Pemilik</p>
+                  <h2 className="fw-bold text-success mb-0">
+                    {stats.owners.find((o) => o.label === 'Pemilik')?.count || 0}
+                  </h2>
                 </div>
               </div>
             </div>
-            <div className="col-xxl-2 col-md-4">
-              <div className="dashboard-card stats-card-amber h-100">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div>
-                      <p className="text-uppercase fw-semibold small mb-2 text-muted">Aktiviti Hari Ini</p>
-                      <h2 className="mb-0 fw-bold text-gradient-amber">
-                        {filtered.filter(r => new Date(r.created_at).toDateString() === new Date().toDateString()).length}
-                      </h2>
-                    </div>
-                    <div className="stats-icon-wrapper">
-                      <span>📅</span>
-                    </div>
-                  </div>
+            <div className="col-12 col-sm-6 col-xxl-2">
+              <div className="card h-100 border-0 shadow-sm">
+                <div className="card-body text-center">
+                  <p className="text-uppercase small text-muted mb-1">Aktiviti Hari Ini</p>
+                  <h2 className="fw-bold mb-0">{stats.today}</h2>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Activity Feed (last 5) */}
-          <div className="dashboard-card h-100 mb-4">
-            <div className="card-body">
-              <h3 className="text-uppercase fw-semibold small mb-3 text-muted">Aktiviti Terkini</h3>
-              <div className="list-group list-group-flush">
-                {recentActivity.map((r) => (
-                  <div key={r.id} className="list-group-item border-0 py-2 px-0">
-                    <div className="d-flex align-items-center">
-                      <div className="flex-shrink-0 me-3">
-                        <div className="avatar-placeholder d-flex align-items-center justify-content-center">
-                          {r.nama_pemohon?.charAt(0) || '?'}
-                        </div>
-                      </div>
-                      <div className="flex-grow-1">
-                        <p className="mb-0 fw-medium small">{r.nama_pemohon} mendaftar unit {r.no_unit}</p>
-                        <p className="mb-0 text-muted xsmall">
-                          {new Date(r.created_at).toLocaleString('ms-MY', {
-                            year: 'numeric', month: 'short', day: 'numeric',
-                            hour: '2-digit', minute: '2-digit'
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Chart Card (placeholder) */}
-          <div className="dashboard-card mb-4 h-100">
-            <div className="card-body">
-              <h3 className="text-uppercase fw-semibold small mb-3 text-muted">Statistik Pendaftaran</h3>
-              <div className="chart-placeholder">
-                <div className="d-flex align-items-end h-100 gap-1">
-                  {Array.from({ length: 7 }, (_, i) => {
-                    const dayData = filtered.filter(r => {
-                      const d = new Date(r.created_at)
-                      return d.getDay() === (new Date().getDay() - 6 + i + 7) % 7
-                    })
-                    const height = Math.max(10, (dayData.length / 7) * 100)
-                    return (
-                      <div key={i} className="flex-grow-1 d-flex flex-column align-items-center">
-                        <div className="chart-bar" style={{ height: `${height}%` }}>
-                          <span className="chart-value">{dayData.length}</span>
-                        </div>
-                        <small className="text-muted mt-1">{['Min','Sel','Rab','Khm','Jum','Sab','Min'][(new Date().getDay() - 6 + i + 7) % 7]}</small>
-                      </div>
-                    )
-                  })}
+          {/* Activity Feed */}
+          <div className="row g-3 mb-4">
+            <div className="col-12">
+              <div className="card h-100 border-0 shadow-sm">
+                <div className="card-header bg-white border-0">
+                  <h3 className="h6 fw-semibold mb-0">Aktiviti Terkini</h3>
+                </div>
+                <div className="card-body p-0">
+                  <ul className="list-group list-group-flush">
+                    {recentActivity.length === 0 ? (
+                      <li className="list-group-item text-center text-muted py-3">Tiada aktiviti</li>
+                    ) : (
+                      recentActivity.map((r) => (
+                        <li key={r.id} className="list-group-item border-0 py-2">
+                          <div className="d-flex align-items-center">
+                            <div className="flex-shrink-0 me-3">
+                              <div className="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
+                                <span className="text-primary fw-bold">{r.nama_pemohon?.charAt(0) || '?'}</span>
+                              </div>
+                            </div>
+                            <div className="flex-grow-1">
+                              <p className="mb-0 fw-medium small">
+                                {r.nama_pemohon} mendaftar unit {r.no_unit}
+                              </p>
+                              <p className="mb-0 text-muted xsmall">
+                                {new Date(r.created_at).toLocaleString('ms-MY', {
+                                  year: 'numeric', month: 'short', day: 'numeric',
+                                  hour: '2-digit', minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        </li>
+                      ))
+                    )}
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Registrations Table */}
-          <div className="dashboard-card mb-4 h-100">
-            <div className="card-body p-0">
-              <div className="card-header border-0 bg-transparent py-3 px-4">
-                <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                  <h3 className="mb-0 fw-semibold">Senarai Pendaftar</h3>
-                  <div className="d-flex gap-2 flex-wrap">
-                    <div className="input-group input-group-sm" style={{ maxWidth: '280px' }}>
-                      <span className="input-group-text bg-light border-0">🔍</span>
-                      <input
-                        type="text"
-                        className="form-control border-0"
-                        placeholder="Cari nama, IC, unit..."
-                        value={search}
-                        onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
-                      />
-                    </div>
-                    <button className="btn btn-outline-success btn-sm" onClick={exportCSV}>
-                      Export CSV
-                    </button>
+          <div className="card border-0 shadow-sm h-100">
+            <div className="card-header bg-white border-0 py-3">
+              <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <h3 className="h6 fw-semibold mb-0">Senarai Pendaftar</h3>
+                <div className="d-flex gap-2 flex-wrap">
+                  <div className="input-group input-group-sm" style={{ maxWidth: '280px' }}>
+                    <span className="input-group-text bg-light border-0"></span>
+                    <input
+                      type="text"
+                      className="form-control border-0"
+                      placeholder="Cari nama, IC, unit..."
+                      value={search}
+                      onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
+                    />
                   </div>
-                </div>
-              </div>
-
-              <div className="px-4 py-3 border-bottom d-flex align-items-center flex-wrap gap-3">
-                <div className="col-md-2 p-0">
-                  <label className="form-label small text-muted mb-1">Blok</label>
-                  <select
-                    className="form-select form-select-sm"
-                    value={filterBlock}
-                    onChange={(e) => { setFilterBlock(e.target.value); setCurrentPage(1) }}
-                  >
-                    <option value="">Semua</option>
-                    <option value="DB01">Blok 1</option>
-                    <option value="DB02">Blok 2</option>
-                    <option value="DB03">Blok 3</option>
-                  </select>
-                </div>
-                <div className="col-md-2 p-0">
-                  <label className="form-label small text-muted mb-1">Pemilik</label>
-                  <select
-                    className="form-select form-select-sm"
-                    value={filterOwner}
-                    onChange={(e) => { setFilterOwner(e.target.value); setCurrentPage(1) }}
-                  >
-                    <option value="">Semua</option>
-                    <option value="Pemilik">Pemilik</option>
-                    <option value="Penyewa">Penyewa</option>
-                  </select>
-                </div>
-                <div className="col-md-2 p-0">
-                  <label className="form-label small text-muted mb-1">Dari</label>
-                  <input
-                    type="date"
-                    className="form-control form-control-sm"
-                    value={dateFrom}
-                    onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1) }}
-                  />
-                </div>
-                <div className="col-md-2 p-0">
-                  <label className="form-label small text-muted mb-1">Sehingga</label>
-                  <input
-                    type="date"
-                    className="form-control form-control-sm"
-                    value={dateTo}
-                    onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1) }}
-                  />
-                </div>
-                <div className="col-md-1 p-0">
-                  <button className="btn btn-outline-secondary btn-sm w-100" onClick={clearAllFilters}>
-                    Reset
+                  <button className="btn btn-outline-success btn-sm" onClick={exportCSV}>
+                    Export CSV
                   </button>
                 </div>
               </div>
+            </div>
 
-              <div className="table-responsive">
-                <table className="table admin-table mb-0">
-                  <thead className="table-light">
+            <div className="px-3 py-2 border-bottom d-flex align-items-center flex-wrap gap-3">
+              <div>
+                <label className="form-label small text-muted mb-1">Blok</label>
+                <select
+                  className="form-select form-select-sm"
+                  value={filterBlock}
+                  onChange={(e) => { setFilterBlock(e.target.value); setCurrentPage(1) }}
+                >
+                  <option value="">Semua</option>
+                  <option value="DB01">Blok 1</option>
+                  <option value="DB02">Blok 2</option>
+                  <option value="DB03">Blok 3</option>
+                </select>
+              </div>
+              <div>
+                <label className="form-label small text-muted mb-1">Pemilik</label>
+                <select
+                  className="form-select form-select-sm"
+                  value={filterOwner}
+                  onChange={(e) => { setFilterOwner(e.target.value); setCurrentPage(1) }}
+                >
+                  <option value="">Semua</option>
+                  <option value="Pemilik">Pemilik</option>
+                  <option value="Penyewa">Penyewa</option>
+                </select>
+              </div>
+              <div>
+                <label className="form-label small text-muted mb-1">Dari</label>
+                <input
+                  type="date"
+                  className="form-control form-control-sm"
+                  value={dateFrom}
+                  onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1) }}
+                />
+              </div>
+              <div>
+                <label className="form-label small text-muted mb-1">Sehingga</label>
+                <input
+                  type="date"
+                  className="form-control form-control-sm"
+                  value={dateTo}
+                  onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1) }}
+                />
+              </div>
+              <div className="mt-auto">
+                <button className="btn btn-outline-secondary btn-sm w-100" onClick={clearAllFilters}>
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            <div className="table-responsive">
+              <table className="table table-hover mb-0 align-middle">
+                <thead className="table-light">
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">
+                      <button
+                        className="btn btn-link btn-sm p-0 text-decoration-none"
+                        onClick={() => toggleSort('nama_pemohon')}
+                      >
+                        Nama Pemohon {sortKey === 'nama_pemohon' && (sortOrder === 'asc' ? '↑' : '↓')}
+                      </button>
+                    </th>
+                    <th scope="col">No. Kad Pengenalan</th>
+                    <th scope="col">
+                      <button
+                        className="btn btn-link btn-sm p-0 text-decoration-none"
+                        onClick={() => toggleSort('no_unit')}
+                      >
+                        No Unit {sortKey === 'no_unit' && (sortOrder === 'asc' ? '↑' : '↓')}
+                      </button>
+                    </th>
+                    <th scope="col">Status</th>
+                    <th scope="col">No H/P</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Isi Rumah</th>
+                    <th scope="col">Tarikh</th>
+                    <th scope="col" className="text-end">Tindakan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
                     <tr>
-                      <th>#</th>
-                      <th>
-                        <button className="btn btn-link btn-sm p-0 text-decoration-none" onClick={() => toggleSort('nama_pemohon')}>
-                          Nama Pemohon {sortKey === 'nama_pemohon' && (sortOrder === 'asc' ? '↑' : '↓')}
-                        </button>
-                      </th>
-                      <th>No. Kad Pengenalan</th>
-                      <th>
-                        <button className="btn btn-link btn-sm p-0 text-decoration-none" onClick={() => toggleSort('no_unit')}>
-                          No Unit {sortKey === 'no_unit' && (sortOrder === 'asc' ? '↑' : '↓')}
-                        </button>
-                      </th>
-                      <th>Status</th>
-                      <th>No H/P</th>
-                      <th>Email</th>
-                      <th>Isi Rumah</th>
-                      <th>Tarikh</th>
-                      <th className="text-end">Tindakan</th>
+                      <td colSpan={10} className="text-center py-4">
+                        <div className="spinner-border text-primary" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      <tr>
-                        <td colSpan={10} className="text-center py-4">
-                          <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading...</span>
+                  ) : paginated.length === 0 ? (
+                    <tr>
+                      <td colSpan={10} className="text-center py-4 text-muted">
+                        Tiada rekod dijumpai.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginated.map((r, i) => (
+                      <tr key={r.id}>
+                        <td>{startIndex + i + 1}</td>
+                        <td>{r.nama_pemohon}</td>
+                        <td>{r.no_kad_pengenalan}</td>
+                        <td>{r.no_unit}</td>
+                        <td>
+                          <span className={`badge ${r.status_pemilikan === 'Pemilik' ? 'bg-success' : 'bg-warning'} text-dark`}>
+                            {r.status_pemilikan}
+                          </span>
+                        </td>
+                        <td>{r.no_hp}</td>
+                        <td>{r.email || <span className="text-muted small">—</span>}</td>
+                        <td>{r.bilangan_isi_rumah}</td>
+                        <td>{new Date(r.created_at).toLocaleDateString('ms-MY')}</td>
+                        <td className="text-end">
+                          <div className="btn-group btn-group-sm" role="group">
+                            <button
+                              className="btn btn-outline-primary"
+                              title="Edit"
+                              onClick={() => setEditingRow(r)}
+                            >
+                              
+                            </button>
+                            <button
+                              className="btn btn-outline-danger"
+                              title="Padam"
+                              onClick={() => handleDelete(r.id)}
+                            >
+                              
+                            </button>
                           </div>
                         </td>
                       </tr>
-                    ) : paginated.length === 0 ? (
-                      <tr>
-                        <td colSpan={10} className="text-center py-4 text-muted">
-                          Tiada rekod dijumpai.
-                        </td>
-                      </tr>
-                    ) : (
-                      paginated.map((r, i) => (
-                        <tr key={r.id}>
-                          <td>{startIndex + i + 1}</td>
-                          <td>{r.nama_pemohon}</td>
-                          <td>{r.no_kad_pengenalan}</td>
-                          <td>{r.no_unit}</td>
-                          <td>
-                            <span className={`status-badge ${r.status_pemilikan === 'Pemilik' ? 'status-approved' : 'status-pending'}`}>
-                              <span>●</span> {r.status_pemilikan}
-                            </span>
-                          </td>
-                          <td>{r.no_hp}</td>
-                          <td>{r.email || <span className="text-muted small">—</span>}</td>
-                          <td>{r.bilangan_isi_rumah}</td>
-                          <td>{new Date(r.created_at).toLocaleDateString('ms-MY')}</td>
-                          <td className="text-end">
-                            <div className="btn-group btn-group-sm" role="group">
-                              <button
-                                className="btn btn-outline-primary"
-                                title="Edit"
-                                onClick={() => setEditingRow(r)}
-                              >
-                                ✏️
-                              </button>
-                              <button
-                                className="btn btn-outline-danger"
-                                title="Padam"
-                                onClick={() => handleDelete(r.id)}
-                              >
-                                🗑️
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {totalPages > 1 && (
+              <div className="px-3 py-2 border-top d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <small className="text-muted">
+                  Halaman {currentPage} daripada {totalPages}
+                </small>
+                <nav>
+                  <ul className="pagination pagination-sm mb-0">
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                      <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>Sebelumnya</button>
+                    </li>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => setCurrentPage(page)}>{page}</button>
+                      </li>
+                    ))}
+                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                      <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>Seterusnya</button>
+                    </li>
+                  </ul>
+                </nav>
               </div>
-
-              {totalPages > 1 && (
-                <div className="px-4 py-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-3">
-                  <small className="text-muted">
-                    Halaman {currentPage} daripada {totalPages}
-                  </small>
-                  <nav>
-                    <ul className="pagination pagination-sm mb-0">
-                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>Sebelumnya</button>
-                      </li>
-                      {totalPages <= 5 ? (
-                        Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(page)}>{page}</button>
-                          </li>
-                        ))
-                      ) : (
-                        <>
-                          <li className="page-item active"><span className="page-link">{currentPage}</span></li>
-                          <li className="page-item disabled"><span className="page-link">/</span></li>
-                          <li className="page-item disabled"><span className="page-link">{totalPages}</span></li>
-                        </>
-                      )}
-                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>Seterusnya</button>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Layout: Table + Activity (side by side on large screens) */}
-          <div className="row g-4">
-            <div className="col-12">
-              {/* already have table above — this is the activity feed */}
-            </div>
+            )}
           </div>
         </div>
       </main>
@@ -618,7 +566,7 @@ const Dashboard = () => {
       {editingRow && (
         <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex={-1}>
           <div className="modal-dialog modal-lg">
-            <div className="modal-content dashboard-modal">
+            <div className="modal-content">
               <form onSubmit={(e) => {
                 e.preventDefault()
                 handleSave(editingRow)
@@ -744,6 +692,19 @@ const Dashboard = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="toast-container position-fixed bottom-0 end-0 p-3">
+          <div className="toast align-items-center text-bg-danger border-0" role="alert">
+            <div className="d-flex">
+              <div className="toast-body">
+                {error}
+              </div>
+              <button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setError('')}></button>
             </div>
           </div>
         </div>
