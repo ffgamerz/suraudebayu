@@ -1,0 +1,477 @@
+/* ===== Dashboard Dark Sidebar Theme (Mockup 1 port) ===== */
+
+.dashboard-app {
+  background: #0f172a;
+  color: #e2e8f0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ===== Sidebar ===== */
+.dashboard-app .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  background: #1e293b;
+  border-right: 1px solid #334159;
+  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.dashboard-app .sidebar .brand {
+  padding: 0 1.5rem 1.5rem;
+  border-bottom: 1px solid #334159;
+  margin-bottom: 1rem;
+}
+
+.dashboard-app .sidebar .brand span {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.dashboard-app .sidebar .nav-link {
+  color: #94a3b8;
+  padding: 0.65rem 1.5rem;
+  font-size: 0.9rem;
+  border-radius: 0;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.dashboard-app .sidebar .nav-link:hover,
+.dashboard-app .sidebar .nav-link.active {
+  background: rgba(56, 178, 227, 0.1);
+  color: #38bdf8;
+  border-left-color: #38bdf8;
+}
+
+.dashboard-app .sidebar .nav-link i {
+  width: 20px;
+  margin-right: 0.5rem;
+}
+
+/* ===== Topbar ===== */
+.dashboard-app .topbar {
+  height: 60px;
+  background: #1e293b;
+  border-bottom: 1px solid #334159;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 260px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+/* ===== Main ===== */
+.dashboard-app .main-content {
+  margin-left: 260px;
+  padding: 2rem;
+  max-width: 100%;
+}
+
+/* ===== Mobile header (tablet & below) ===== */
+.dashboard-app .mobile-header {
+  display: none;
+  height: 60px;
+  background: #1e293b;
+  border-bottom: 1px solid #334159;
+  padding: 0 1rem;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 95;
+}
+
+.dashboard-app .mobile-header .menu-btn {
+  display: inline-flex !important;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  background: transparent;
+  border: 1px solid #334159;
+  border-radius: 0.35rem;
+}
+
+.dashboard-app .overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 90;
+}
+
+.dashboard-app .overlay.show {
+  display: block;
+}
+
+/* ===== Stats Cards ===== */
+.dashboard-app .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-app .stat-card {
+  background: #1e293b;
+  border: 1px solid #334159;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-app .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-app .stat-card .stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3bc;
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-app .stat-card .stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0.25rem 0;
+}
+
+.dashboard-app .stat-card.total .stat-value { color: #38bdf8; }
+.dashboard-app .stat-card.owner .stat-value { color: #4ade80; }
+.dashboard-app .stat-card.tenant .stat-value { color: #f59e0b; }
+.dashboard-app .stat-card.today .stat-value { color: #a78bfa; }
+.dashboard-app .stat-card.b1 .stat-value { color: #f472b6; }
+.dashboard-app .stat-card.b2 .stat-value { color: #fb92b2; }
+.dashboard-app .stat-card.b3 .stat-value { color: #fca5a5; }
+
+/* ===== Table Card ===== */
+.dashboard-app .table-card {
+  background: #1e293b;
+  border: 1px solid #334159;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-app .table-card .card-header {
+  background: #0f172a;
+  border-bottom: 1px solid #334159;
+  padding: 1rem 1.25rem;
+}
+
+.dashboard-app .table-card .card-header h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  color: #e2e8f0;
+}
+
+.dashboard-app .table-card .card-body {
+  padding: 0;
+}
+
+.dashboard-app .table-dark-custom thead th {
+  background: #0f172a;
+  color: #94a3a8;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+}
+
+.dashboard-app .table-dark-custom td {
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid #334159;
+  font-size: 0.85rem;
+}
+
+.dashboard-app .table-dark-custom tbody tr:hover {
+  background: rgba(56, 178, 227, 0.05);
+}
+
+.dashboard-app .badge-owner {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  font-size: 0.68rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.dashboard-app .badge-tenant {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  font-size: 0.68rem;
+  padding: 0.2rem 0.5rem;
+}
+
+/* ===== Activity ===== */
+.dashboard-app .activity-list { list-style: none; }
+
+.dashboard-app .activity-list li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #334159;
+  font-size: 0.85rem;
+}
+
+.dashboard-app .activity-list li:last-child { border-bottom: none; }
+
+.dashboard-app .activity-list .activity-name { color: #38bdf8; font-weight: 500; }
+
+.dashboard-app .activity-list .activity-time { color: #64748b; font-size: 0.75rem; }
+
+/* ===== Pagination ===== */
+.dashboard-app .pagination .page-link {
+  background: #1e293b;
+  border: 1px solid #334159;
+  color: #94a3a8;
+}
+
+.dashboard-app .pagination .page-item.active .page-link {
+  background: #38bdf8;
+  border-color: #38bdf8;
+  color: #0f172a;
+}
+
+.dashboard-app .pagination .page-item.disabled .page-link {
+  background: #0f172a;
+  color: #475569;
+}
+
+/* ===== Buttons ===== */
+.dashboard-app .btn-primary {
+  background: #38bdf8;
+  border: none;
+  color: #0f172a;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  font-size: 0.82rem;
+}
+
+.dashboard-app .btn-primary:hover {
+  background: #7dd3fc;
+  transform: translateY(-1px);
+}
+
+.dashboard-app .btn-outline-success {
+  background: transparent;
+  border: 1px solid #4ade80;
+  color: #4ade80;
+}
+
+.dashboard-app .btn-outline-success:hover {
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+}
+
+.dashboard-app .btn-outline-secondary {
+  background: transparent;
+  border: 1px solid #334159;
+  color: #94a3a8;
+}
+
+.dashboard-app .btn-outline-secondary:hover {
+  background: #334159;
+  color: #e2e8f0;
+}
+
+.dashboard-app .btn-sm {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+}
+
+.dashboard-app .btn-group-sm .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+}
+
+/* ===== Search ===== */
+.dashboard-app .search-box {
+  position: relative;
+}
+
+.dashboard-app .search-box .input-group-text {
+  background: #0f172a;
+  border: 1px solid #334159;
+  color: #64748b;
+  border-radius: 0.4rem 0 0 0.4rem !important;
+  padding: 0.4rem 0.7rem;
+}
+
+.dashboard-app .search-box .form-control {
+  background: #0f172a;
+  border: 1px solid #334159;
+  color: #e2e8f0;
+  border-radius: 0 0.4rem 0.4rem 0 !important;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.7rem;
+}
+
+.dashboard-app .search-box .form-control:focus {
+  background: #0f172a;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 0.2rem rgba(56, 178, 227, 0.25);
+  color: #e2e8f0;
+}
+
+/* ===== Filter ===== */
+.dashboard-app .filter-select {
+  background: #0f172a;
+  border: 1px solid #334159;
+  color: #e2e8f0;
+  border-radius: 0.4rem;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.7rem;
+}
+
+.dashboard-app .filter-select:focus {
+  background: #0f172a;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 0.2rem rgba(56, 178, 227, 0.25);
+  color: #e2e8f0;
+}
+
+.dashboard-app .filter-select option {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+/* ===== Form controls in dashboard ===== */
+.dashboard-app .form-control,
+.dashboard-app .form-select {
+  background: #0f172a !important;
+  border: 1px solid #334159 !important;
+  color: #e2e8f0 !important;
+  font-size: 0.82rem;
+}
+
+.dashboard-app .form-control:focus,
+.dashboard-app .form-select:focus {
+  background: #0f172a !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 0.2rem rgba(56, 178, 227, 0.25);
+  color: #e2e8f0 !important;
+}
+
+.dashboard-app .form-select option {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.dashboard-app .input-group-text {
+  background: #0f172a;
+  border: 1px solid #334159;
+  color: #64748b;
+}
+
+/* ===== Helper text ===== */
+.dashboard-app .text-white {
+  color: #e2e8f0 !important;
+}
+
+.dashboard-app .text-muted {
+  color: #94a3a8 !important;
+}
+
+.dashboard-app small.text-muted {
+  color: #94a3a8 !important;
+}
+
+.dashboard-app .xsmall {
+  font-size: 0.7rem;
+}
+
+/* ===== Edit Modal ===== */
+.dashboard-app .modal-content {
+  background: #1e293b;
+  border: 1px solid #334159;
+  border-radius: 0.5rem;
+}
+
+.dashboard-app .modal-header {
+  background: #0f172a;
+  border-bottom: 1px solid #334159;
+}
+
+.dashboard-app .modal-header .modal-title {
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.dashboard-app .modal-footer {
+  background: #0f172a;
+  border-top: 1px solid #334159;
+}
+
+/* ===== Toast ===== */
+.dashboard-app .toast {
+  background: #1e293b;
+  border: 1px solid #334159;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 991.98px) {
+  .dashboard-app .mobile-header {
+    display: flex;
+  }
+  .dashboard-app .sidebar {
+    position: fixed;
+    transform: translateX(-260px);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+  .dashboard-app .sidebar.show {
+    transform: translateX(0);
+  }
+  .dashboard-app .topbar {
+    margin-left: 0;
+  }
+  .dashboard-app .main-content {
+    margin-left: 0;
+  }
+  .dashboard-app .menu-btn {
+    display: inline-flex !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-app .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .dashboard-app .main-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-app .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 400px) {
+  .dashboard-app .stat-card .stat-value {
+    font-size: 1.25rem;
+  }
+  .dashboard-app .stat-card .stat-label {
+    font-size: 0.65rem;
+  }
+}

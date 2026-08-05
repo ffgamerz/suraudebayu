@@ -41,8 +41,15 @@ const Login = () => {
 
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center bg-dash">
-      <div className="card shadow-lg" style={{ width: '420px', border: 'none', borderRadius: '12px' }}>
-        <div className="card-body p-5">
+      <div
+        className="card shadow-lg w-100"
+        style={{
+          maxWidth: '420px',
+          border: 'none',
+          borderRadius: '12px',
+        }}
+      >
+        <div className="card-body p-4 p-sm-5">
           <div className="text-center mb-4">
             <img
               src="/assets/surau-de-bayu-header.jpg"
@@ -68,7 +75,7 @@ const Login = () => {
               <input
                 type="email"
                 id="email"
-                className="form-control form-control-sm"
+                className="form-control"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -83,7 +90,7 @@ const Login = () => {
               <input
                 type="password"
                 id="password"
-                className="form-control form-control-sm"
+                className="form-control"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

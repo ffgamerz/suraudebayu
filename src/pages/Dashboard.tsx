@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { RegistrationFormData } from '../lib/types'
+import '../styles/Dashboard.css'
 
 type RegistrationRow = RegistrationFormData & {
   id: number
@@ -31,6 +32,7 @@ const Dashboard = () => {
   const [saving, setSaving] = useState(false)
   const [sortKey, setSortKey] = useState<'nama_pemohon' | 'created_at' | 'no_unit'>('created_at')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -99,7 +101,6 @@ const Dashboard = () => {
   const stats = useMemo(() => {
     const blockCounts: Record<string, number> = {}
     const ownerCounts: Record<string, number> = {}
-
     registrations.forEach((r) => {
       const block = r.no_unit?.split('-')[0] || 'Unknown'
       blockCounts[block] = (blockCounts[block] || 0) + 1
@@ -211,21 +212,107 @@ const Dashboard = () => {
   const recentActivity = registrations.slice(0, 5)
 
   return (
-    <div className="d-flex min-vh-100 bg-light">
-      {/* ===== Mobile Header (visible on small screens) ===== */}
-      <header className="d-lg-none d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
+    <div className="dashboard-app d-flex min-vh-100">
+      {/* ===== Sidebar ===== */}
+      <aside className={`sidebar ${sidebarOpen ? 'show' : ''}`} id="sidebar">
+        <div className="brand d-flex align-items-center px-4 mb-3">
+          <span className="fs-3 fw-bold text-primary">SB</span>
+          <span className="fs-5 fw-semibold text-white ms-2">
+            Surau De Bayu
+          </span>
+        </div>
+        <ul className="nav nav-pills flex-column mb-auto">
+          <li className="nav-item mb-1">
+            <a href="#dashboard" className="nav-link active" aria-current="page">
+              <i className="me-2 bi bi-speedometer2"></i> Dashboard
+            </a>
+          </li>
+          <li className="nav-item mb-1">
+            <a href="#ahli" className="nav-link text-white">
+              <i className="me-2 bi bi-person"></i> Ahli Kariah
+            </a>
+          </li>
+          <li className="nav-item mb-1">
+            <a href="#pendaftaran" className="nav-link text-white">
+              <i className="me-2 bi bi-list-ul"></i> Pendaftaran
+            </a>
+          </li>
+          <li className="nav-item mb-1">
+            <a href="#acara" className="nav-link text-white">
+              <i className="me-2 bi bi-calendar-event"></i> Acara
+            </a>
+          </li>
+          <li className="nav-item mb-1">
+            <a href="#pengumuman" className="nav-link text-white">
+              <i className="me-2 bi bi-megaphone"></i> Pengumuman
+            </a>
+          </li>
+          <li className="nav-item mb-1">
+            <a href="#laporan" className="nav-link text-white">
+              <i className="me-2 bi bi-file-text"></i> Laporan
+            </a>
+          </li>
+        </ul>
+        <hr className="border-secondary" />
+        <div className="dropdown" style={{ padding: '0 1.5rem 1.5rem' }}>
+          <a
+            href="#logout"
+            className="d-flex align-items-center text-danger text-decoration-none"
+            onClick={handleLogout}
+            style={{ cursor: 'pointer' }}
+          >
+            <i className="me-2 bi bi-box-arrow-right"></i>
+            <span>Log Keluar</span>
+          </a>
+        </div>
+      </aside>
+
+      {/* ===== Overlay (mobile) ===== */}
+      <div
+        className={`overlay ${sidebarOpen ? 'show' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      {/* ===== Topbar ===== */}
+      <header className="topbar">
+        <div className="d-flex align-items-center gap-3">
+          <button
+            className="btn btn-outline-secondary btn-sm menu-btn d-lg-none"
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <i className="bi bi-list"></i>
+          </button>
+          <h1 className="h6 fw-semibold mb-0 text-white">Dashboard Kariah</h1>
+        </div>
+        <div className="d-flex align-items-center gap-3">
+          <button className="btn btn-outline-secondary btn-sm">
+            <i className="bi bi-gear"></i>
+          </button>
+          <span className="text-muted small" style={{ display: 'none' }}>{user?.email}</span>
+          <img
+            src="https://via.placeholder.com/36"
+            alt="User"
+            className="rounded-circle"
+            width="36"
+            height="36"
+          />
+        </div>
+      </header>
+
+      {/* ===== Mobile Header ===== */}
+      <header className="mobile-header">
         <button
-          className="btn btn-outline-secondary btn-sm"
+          className="btn btn-outline-secondary btn-sm menu-btn"
           type="button"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#sidebarOffcanvas"
+          onClick={() => setSidebarOpen(true)}
         >
-          ☰
+          <i className="bi bi-list"></i>
         </button>
-        <h1 className="h6 fw-semibold mb-0">Dashboard</h1>
+        <h1 className="h6 fw-semibold mb-0 text-white">Dashboard</h1>
         <div className="d-flex align-items-center gap-2">
-          <span className="position-relative">
-            <span className="fs-5">🔔</span>
+          <span className="position-relative text-white">
+            <i className="bi bi-bell fs-5"></i>
             <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
               3
             </span>
@@ -233,144 +320,50 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* ===== Sidebar (desktop only) ===== */}
-      <aside className="d-none d-lg-block d-flex flex-column flex-shrink-0 p-3 bg-dark text-white" style={{ width: '260px', minWidth: '260px' }}>
-        <a href="/" className="d-flex align-items-center text-white text-decoration-none mb-4">
-          <span className="fs-3 me-2">Surau</span>
-          <span className="fs-5 fw-semibold">De Bayu</span>
-        </a>
-        <hr className="border-secondary" />
-        <ul className="nav nav-pills flex-column mb-auto">
-          <li className="nav-item mb-1">
-            <a href="#" className="nav-link active" aria-current="page">
-              Dashboard
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="#" className="nav-link text-white">
-              Ahli Kariah
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="#" className="nav-link text-white">
-              Pendaftaran
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="#" className="nav-link text-white">
-              Acara
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="#" className="nav-link text-white">
-              Pengumuman
-            </a>
-          </li>
-        </ul>
-        <hr className="border-secondary" />
-        <div className="dropdown">
-          <a
-            href="#"
-            className="d-flex align-items-center text-white text-decoration-none"
-            onClick={handleLogout}
-            style={{ cursor: 'pointer' }}
-          >
-            <span className="fs-6">Log Keluar</span>
-          </a>
-        </div>
-      </aside>
-
-      {/* ===== Mobile Offcanvas Sidebar ===== */}
-      <div className="offcanvas offcanvas-start d-lg-none" tabIndex={-1} id="sidebarOffcanvas">
-        <div className="offcanvas-header">
-          <h5 className="offcanvas-title mb-0">Menu</h5>
-          <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div className="offcanvas-body p-0">
-          <nav className="flex-column nav">
-            <a href="#" className="nav-link active">Dashboard</a>
-            <a href="#" className="nav-link text-dark">Ahli Kariah</a>
-            <a href="#" className="nav-link text-dark">Pendaftaran</a>
-            <a href="#" className="nav-link text-dark">Acara</a>
-            <a href="#" className="nav-link text-dark">Pengumuman</a>
-            <hr className="my-2" />
-            <a href="#" className="nav-link text-danger" onClick={handleLogout} style={{ cursor: 'pointer' }}>Log Keluar</a>
-          </nav>
-        </div>
-      </div>
-
       {/* ===== Main Content ===== */}
-      <main className="flex-column flex-grow-1 overflow-hidden">
-        {/* Header */}
-        <header className="d-flex justify-content-between align-items-center p-4 bg-white border-bottom">
-          <div>
-            <h1 className="h3 fw-semibold mb-1">Dashboard Kariah</h1>
-            <p className="text-muted mb-0">Selamat datang, {user?.email}</p>
-          </div>
-          <div className="d-flex align-items-center gap-3">
-            <span className="position-relative">
-              <span className="fs-5"></span>
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                3
-              </span>
-            </span>
-            <img
-              src="https://via.placeholder.com/36"
-              alt="User"
-              className="rounded-circle"
-              width="36"
-              height="36"
-            />
-          </div>
-        </header>
-
+      <main className="main-content flex-column flex-lg-row flex-grow-1 overflow-hidden">
         {/* Stats Cards */}
-        <div className="container-fluid p-4">
-          <div className="row g-3 mb-4">
-            <div className="col-12 col-sm-6 col-xl">
-              <div className="card h-100 border-0 shadow-sm">
-                <div className="card-body text-center">
-                  <p className="text-uppercase small text-muted mb-1">Jumlah Pendaftaran</p>
-                  <h2 className="fw-bold mb-0">{stats.total}</h2>
-                </div>
+        <div className="container-fluid px-0">
+          <div className="stats-grid">
+            <div className="stat-card card h-100 border-0">
+              <div className="card-body text-center">
+                <i className="stat-icon mb-2 bi bi-speedometer2"></i>
+                <p className="stat-label mb-1">Jumlah Pendaftaran</p>
+                <h2 className="fw-bold mb-0">{stats.total}</h2>
               </div>
             </div>
             {stats.blocks.map((b) => (
-              <div className="col-12 col-sm-6 col-xl" key={b.label}>
-                <div className="card h-100 border-0 shadow-sm">
-                  <div className="card-body text-center">
-                    <p className="text-uppercase small text-muted mb-1">{b.label}</p>
-                    <h2 className="fw-bold mb-0">{b.count}</h2>
-                  </div>
+              <div className="stat-card card h-100 border-0" key={b.label}>
+                <div className="card-body text-center">
+                  <i className="stat-icon mb-2 bi bi-building"></i>
+                  <p className="stat-label mb-1">{b.label}</p>
+                  <h2 className="fw-bold mb-0">{b.count}</h2>
                 </div>
               </div>
             ))}
-            <div className="col-12 col-sm-6 col-xl">
-              <div className="card h-100 border-0 shadow-sm">
-                <div className="card-body text-center">
-                  <p className="text-uppercase small text-muted mb-1">Penyewa</p>
-                  <h2 className="fw-bold text-danger mb-0">
-                    {stats.owners.find((o) => o.label === 'Penyewa')?.count || 0}
-                  </h2>
-                </div>
+            <div className="stat-card card h-100 border-0">
+              <div className="card-body text-center">
+                <i className="stat-icon mb-2 bi bi-person"></i>
+                <p className="stat-label mb-1">Penyewa</p>
+                <h2 className="fw-bold text-danger mb-0">
+                  {stats.owners.find((o) => o.label === 'Penyewa')?.count || 0}
+                </h2>
               </div>
             </div>
-            <div className="col-12 col-sm-6 col-xl">
-              <div className="card h-100 border-0 shadow-sm">
-                <div className="card-body text-center">
-                  <p className="text-uppercase small text-muted mb-1">Pemilik</p>
-                  <h2 className="fw-bold text-success mb-0">
-                    {stats.owners.find((o) => o.label === 'Pemilik')?.count || 0}
-                  </h2>
-                </div>
+            <div className="stat-card card h-100 border-0">
+              <div className="card-body text-center">
+                <i className="stat-icon mb-2 bi bi-person-check"></i>
+                <p className="stat-label mb-1">Pemilik</p>
+                <h2 className="fw-bold text-success mb-0">
+                  {stats.owners.find((o) => o.label === 'Pemilik')?.count || 0}
+                </h2>
               </div>
             </div>
-            <div className="col-12 col-sm-6 col-xl">
-              <div className="card h-100 border-0 shadow-sm">
-                <div className="card-body text-center">
-                  <p className="text-uppercase small text-muted mb-1">Aktiviti Hari Ini</p>
-                  <h2 className="fw-bold mb-0">{stats.today}</h2>
-                </div>
+            <div className="stat-card card h-100 border-0">
+              <div className="card-body text-center">
+                <i className="stat-icon mb-2 bi bi-bell"></i>
+                <p className="stat-label mb-1">Aktiviti Hari Ini</p>
+                <h2 className="fw-bold mb-0">{stats.today}</h2>
               </div>
             </div>
           </div>
@@ -378,14 +371,16 @@ const Dashboard = () => {
           {/* Activity Feed */}
           <div className="row g-3 mb-4">
             <div className="col-12">
-              <div className="card h-100 border-0 shadow-sm">
-                <div className="card-header bg-white border-0">
-                  <h3 className="h6 fw-semibold mb-0">Aktiviti Terkini</h3>
+              <div className="table-card">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                  <h3 className="h6 fw-semibold mb-0 text-white"><i className="bi bi-bell me-2"></i> Aktiviti Terkini</h3>
                 </div>
                 <div className="card-body p-0">
-                  <ul className="list-group list-group-flush">
+                  <ul className="list-group list-group-flush activity-list">
                     {recentActivity.length === 0 ? (
-                      <li className="list-group-item text-center text-muted py-3">Tiada aktiviti</li>
+                      <li className="list-group-item text-center text-muted py-3 border-0">
+                        Tiada aktiviti
+                      </li>
                     ) : (
                       recentActivity.map((r) => (
                         <li key={r.id} className="list-group-item border-0 py-2">
@@ -396,7 +391,7 @@ const Dashboard = () => {
                               </div>
                             </div>
                             <div className="flex-grow-1">
-                              <p className="mb-0 fw-medium small">
+                              <p className="mb-0 fw-medium small text-white">
                                 {r.nama_pemohon} mendaftar unit {r.no_unit}
                               </p>
                               <p className="mb-0 text-muted xsmall">
@@ -417,33 +412,34 @@ const Dashboard = () => {
           </div>
 
           {/* Registrations Table */}
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-header bg-white border-0 py-3">
-              <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <h3 className="h6 fw-semibold mb-0">Senarai Pendaftar</h3>
-                <div className="d-flex gap-2 flex-wrap">
-                  <div className="input-group input-group-sm" style={{ maxWidth: '280px' }}>
-                    <span className="input-group-text bg-light border-0"></span>
-                    <input
-                      type="text"
-                      className="form-control border-0"
-                      placeholder="Cari nama, IC, unit..."
-                      value={search}
-                      onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
-                    />
-                  </div>
-                  <button className="btn btn-outline-success btn-sm" onClick={exportCSV}>
-                    Export CSV
-                  </button>
+          <div className="table-card">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h3 className="h6 fw-semibold mb-0 text-white"><i className="bi bi-journal-text me-2"></i> Senarai Pendaftar</h3>
+              <div className="d-flex gap-2 flex-wrap">
+                <div className="input-group input-group-sm" style={{ maxWidth: '280px' }}>
+                  <span className="input-group-text bg-secondary bg-opacity-10 border-0 text-muted">
+                    <i className="bi bi-search"></i>
+                  </span>
+                  <input
+                    type="text"
+                    className="form-control border-0 bg-secondary bg-opacity-10 text-white"
+                    placeholder="Cari nama, IC, unit..."
+                    value={search}
+                    onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
+                  />
                 </div>
+                <button className="btn btn-outline-success btn-sm d-none d-sm-inline-block" onClick={exportCSV}>
+                  <i className="bi bi-download me-1"></i> Export CSV
+                </button>
               </div>
             </div>
 
-            <div className="px-3 py-2 border-bottom d-flex align-items-center flex-column flex-sm-row gap-3">
+            {/* Desktop filter row */}
+            <div className="px-3 py-2 border-bottom d-none d-lg-flex align-items-center gap-3 flex-wrap">
               <div>
                 <label className="form-label small text-muted mb-1">Blok</label>
                 <select
-                  className="form-select form-select-sm"
+                  className="form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
                   value={filterBlock}
                   onChange={(e) => { setFilterBlock(e.target.value); setCurrentPage(1) }}
                 >
@@ -456,7 +452,7 @@ const Dashboard = () => {
               <div>
                 <label className="form-label small text-muted mb-1">Pemilik</label>
                 <select
-                  className="form-select form-select-sm"
+                  className="form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
                   value={filterOwner}
                   onChange={(e) => { setFilterOwner(e.target.value); setCurrentPage(1) }}
                 >
@@ -469,7 +465,7 @@ const Dashboard = () => {
                 <label className="form-label small text-muted mb-1">Dari</label>
                 <input
                   type="date"
-                  className="form-control form-control-sm" style={{ fontSize: "16px" }}
+                  className="form-control form-control-sm bg-secondary bg-opacity-10 border-0 text-white"
                   value={dateFrom}
                   onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1) }}
                 />
@@ -478,7 +474,7 @@ const Dashboard = () => {
                 <label className="form-label small text-muted mb-1">Sehingga</label>
                 <input
                   type="date"
-                  className="form-control form-control-sm" style={{ fontSize: "16px" }}
+                  className="form-control form-control-sm bg-secondary bg-opacity-10 border-0 text-white"
                   value={dateTo}
                   onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1) }}
                 />
@@ -490,9 +486,10 @@ const Dashboard = () => {
               </div>
             </div>
 
+            {/* Desktop table */}
             <div className="table-responsive">
-              <table className="table table-hover mb-0 align-middle">
-                <thead className="table-light">
+              <table className="table table-dark-custom table-hover mb-0 align-middle">
+                <thead>
                   <tr>
                     <th scope="col">#</th>
                     <th scope="col">
@@ -543,7 +540,7 @@ const Dashboard = () => {
                         <td>{r.no_kad_pengenalan}</td>
                         <td>{r.no_unit}</td>
                         <td>
-                          <span className={`badge ${r.status_pemilikan === 'Pemilik' ? 'bg-success' : 'bg-warning'} text-dark`}>
+                          <span className={`badge ${r.status_pemilikan === 'Pemilik' ? 'badge-owner' : 'badge-tenant'}`}>
                             {r.status_pemilikan}
                           </span>
                         </td>
@@ -554,18 +551,18 @@ const Dashboard = () => {
                         <td className="text-end">
                           <div className="btn-group btn-group-sm" role="group">
                             <button
-                              className="btn btn-outline-primary btn-sm py-1"
+                              className="btn btn-outline-secondary text-primary"
                               title="Edit"
                               onClick={() => setEditingRow(r)}
                             >
-                              
+                              <i className="bi bi-pencil"></i>
                             </button>
                             <button
-                              className="btn btn-outline-danger btn-sm py-1"
+                              className="btn btn-outline-secondary text-danger ms-1"
                               title="Padam"
                               onClick={() => handleDelete(r.id)}
                             >
-                              
+                              <i className="bi bi-trash"></i>
                             </button>
                           </div>
                         </td>
@@ -576,6 +573,59 @@ const Dashboard = () => {
               </table>
             </div>
 
+            {/* Mobile card list */}
+            <div className="d-lg-none">
+              {loading ? (
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              ) : paginated.length === 0 ? (
+                <p className="text-center py-4 text-muted mb-0">Tiada rekod dijumpai.</p>
+              ) : (
+                <ul className="list-group">
+                  {paginated.map((r, i) => (
+                    <li key={r.id} className="list-group-item border-bottom py-3">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <div className="fw-medium text-white">#{startIndex + i + 1} — {r.nama_pemohon}</div>
+                        <div className="btn-group btn-group-sm" role="group">
+                          <button
+                            className="btn btn-outline-secondary text-primary"
+                            title="Edit"
+                            onClick={() => setEditingRow(r)}
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                          <button
+                            className="btn btn-outline-secondary text-danger ms-1"
+                            title="Padam"
+                            onClick={() => handleDelete(r.id)}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="d-grid gap-1 small text-muted">
+                        <div><span className="fw-medium text-white">IC:</span> {r.no_kad_pengenalan}</div>
+                        <div><span className="fw-medium text-white">Unit:</span> {r.no_unit}</div>
+                        <div><span className="fw-medium text-white">Status:</span>
+                          <span className={`badge ms-1 ${r.status_pemilikan === 'Pemilik' ? 'badge-owner' : 'badge-tenant'}`}>
+                            {r.status_pemilikan}
+                          </span>
+                        </div>
+                        <div><span className="fw-medium text-white">HP:</span> {r.no_hp}</div>
+                        <div><span className="fw-medium text-white">Isi:</span> {r.bilangan_isi_rumah}</div>
+                        <div><span className="fw-medium text-white">Tarikh:</span> {new Date(r.created_at).toLocaleDateString('ms-MY')}</div>
+                        {r.email && <div><span className="fw-medium text-white">Email:</span> {r.email}</div>}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Pagination */}
             {totalPages > 1 && (
               <div className="px-3 py-2 border-top d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <small className="text-muted">
@@ -604,8 +654,8 @@ const Dashboard = () => {
 
       {/* ===== Edit Modal ===== */}
       {editingRow && (
-        <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex={-1}>
-          <div className="modal-dialog modal-lg">
+        <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050 }} tabIndex={-1}>
+          <div className="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-lg-down">
             <div className="modal-content">
               <form onSubmit={(e) => {
                 e.preventDefault()
@@ -613,11 +663,11 @@ const Dashboard = () => {
               }}>
                 <div className="modal-header">
                   <h5 className="modal-title">Kemaskini Maklumat</h5>
-                  <button type="button" className="btn-close" onClick={() => setEditingRow(null)}></button>
+                  <button type="button" className="btn-close btn-close-white" onClick={() => setEditingRow(null)}></button>
                 </div>
                 <div className="modal-body">
                   <div className="row g-3">
-                    <div className="col-md-6">
+                    <div className="col-12">
                       <label className="form-label small text-muted">Nama Pemohon</label>
                       <input
                         type="text"
@@ -627,7 +677,7 @@ const Dashboard = () => {
                         required
                       />
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-12">
                       <label className="form-label small text-muted">No. Kad Pengenalan</label>
                       <input
                         type="text"
@@ -647,7 +697,7 @@ const Dashboard = () => {
                         required
                       />
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-12">
                       <label className="form-label small text-muted">No Unit</label>
                       <input
                         type="text"
@@ -657,7 +707,7 @@ const Dashboard = () => {
                         required
                       />
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-12">
                       <label className="form-label small text-muted">Status Pemilikan</label>
                       <select
                         className="form-select"
@@ -669,7 +719,7 @@ const Dashboard = () => {
                         <option value="Penyewa">Penyewa</option>
                       </select>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-12">
                       <label className="form-label small text-muted">No H/P</label>
                       <input
                         type="text"
@@ -679,7 +729,7 @@ const Dashboard = () => {
                         required
                       />
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-12">
                       <label className="form-label small text-muted">Email</label>
                       <input
                         type="email"
@@ -688,7 +738,7 @@ const Dashboard = () => {
                         onChange={(e) => setEditingRow({ ...editingRow, email: e.target.value })}
                       />
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-12">
                       <label className="form-label small text-muted">Perkahwinan</label>
                       <select
                         className="form-select"
@@ -700,7 +750,7 @@ const Dashboard = () => {
                         <option value="Berkahwin">Berkahwin</option>
                       </select>
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-12">
                       <label className="form-label small text-muted">Isi Rumah</label>
                       <input
                         type="number"
@@ -717,7 +767,7 @@ const Dashboard = () => {
                 <div className="modal-footer">
                   <button
                     type="button"
-                    className="btn btn-secondary btn-sm"
+                    className="btn btn-outline-secondary btn-sm"
                     onClick={() => setEditingRow(null)}
                     disabled={saving}
                   >
