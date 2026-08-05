@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
@@ -35,10 +35,23 @@ const ExportPage = () => {
   const [error, setError] = useState('')
   const [selectedFields, setSelectedFields] = useState<FieldDef[]>(ALL_FIELDS.slice(0, 5))
   const [showAddMenu, setShowAddMenu] = useState(false)
+  const addMenuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
     fetchRegistrations()
+  }, [])
+
+  // Click outside to close field dropdown (mousedown = fire before React toggle)
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as Node
+      // Ignore clicks inside the add-column button or its dropdown
+      if (addMenuRef.current && addMenuRef.current.contains(target)) return
+      setShowAddMenu(false)
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
   }, [])
 
   const fetchRegistrations = async () => {
@@ -195,15 +208,12 @@ const ExportPage = () => {
               <h3 className="h6 fw-semibold mb-0 text-white">
                 <i className="bi bi-download me-2"></i> Eksport Data Ahli Kariah
               </h3>
-              <div className="d-flex align-items-center gap-2 position-relative">
+              <div className="d-flex align-items-center gap-2 position-relative" ref={addMenuRef}>
                 <small className="text-muted mb-0">{selectedFields.length} column dipilih</small>
                 <button
                   type="button"
                   className="btn btn-outline-secondary btn-sm text-nowrap"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setShowAddMenu(!showAddMenu)
-                  }}
+                  onClick={() => setShowAddMenu(!showAddMenu)}
                 >
                   <i className="bi bi-plus-lg me-1"></i> Add Column
                 </button>

@@ -19,6 +19,7 @@ function App() {
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/ahli-kariah" element={<ProtectedRoute><AhliKariah /></ProtectedRoute>} />
             <Route path="/export" element={<ProtectedRoute><ExportPage /></ProtectedRoute>} />
+            <Route path="/devexport" element={<ExportPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
