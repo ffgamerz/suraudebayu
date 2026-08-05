@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
@@ -33,25 +33,11 @@ const ExportPage = () => {
   const [registrations, setRegistrations] = useState<RegistrationRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedFields, setSelectedFields] = useState<FieldDef[]>(ALL_FIELDS.slice(0, 5))
-  const [showAddMenu, setShowAddMenu] = useState(false)
-  const addMenuRef = useRef<HTMLDivElement>(null)
+  const [selectedFields, setSelectedFields] = useState<FieldDef[]>([])
   const navigate = useNavigate()
 
   useEffect(() => {
     fetchRegistrations()
-  }, [])
-
-  // Click outside to close field dropdown (mousedown = fire before React toggle)
-  useEffect(() => {
-    const handleMouseDown = (e: MouseEvent) => {
-      const target = e.target as Node
-      // Ignore clicks inside the add-column button or its dropdown
-      if (addMenuRef.current && addMenuRef.current.contains(target)) return
-      setShowAddMenu(false)
-    }
-    document.addEventListener('mousedown', handleMouseDown)
-    return () => document.removeEventListener('mousedown', handleMouseDown)
   }, [])
 
   const fetchRegistrations = async () => {
@@ -75,7 +61,6 @@ const ExportPage = () => {
     if (!selectedFields.some((f) => f.key === field.key)) {
       setSelectedFields([...selectedFields, field])
     }
-    setShowAddMenu(false)
   }
 
   const removeField = (field: FieldDef) => {
@@ -87,6 +72,36 @@ const ExportPage = () => {
     const [moved] = reordered.splice(from, 1)
     reordered.splice(to, 0, moved)
     setSelectedFields(reordered)
+  }
+
+  const saveColumnConfig = () => {
+    const config = {
+      name: 'export-config',
+      timestamp: new Date().toISOString(),
+      fields: selectedFields.map((f) => f.key),
+    }
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `kariah-column-config_${new Date().toISOString().split('T')[0]}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const loadColumnConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const config = JSON.parse(ev.target?.result as string)
+      const loaded = config.fields
+        .map((key: string) => ALL_FIELDS.find((f) => f.key === key))
+        .filter(Boolean)
+      setSelectedFields(loaded)
+    }
+    reader.readAsText(file)
+    e.target.value = ''
   }
 
   const handleLogout = async () => {
@@ -208,49 +223,52 @@ const ExportPage = () => {
               <h3 className="h6 fw-semibold mb-0 text-white">
                 <i className="bi bi-download me-2"></i> Eksport Data Ahli Kariah
               </h3>
-              <div className="d-flex align-items-center gap-2 position-relative" ref={addMenuRef}>
+              <div className="d-flex align-items-center gap-2">
                 <small className="text-muted mb-0">{selectedFields.length} column dipilih</small>
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary btn-sm text-nowrap"
-                  onClick={() => setShowAddMenu(!showAddMenu)}
-                >
-                  <i className="bi bi-plus-lg me-1"></i> Add Column
-                </button>
+                <div className="dropdown">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm text-nowrap dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    data-bs-display="static"
+                    aria-expanded="false"
+                  >
+                    <i className="bi bi-plus-lg me-1"></i> Add Column
+                  </button>
+                  <ul className="dropdown-menu dropdown-menu-dark bg-dark border-secondary" style={{ maxHeight: '340px', overflowY: 'auto' }}>
+                    {ALL_FIELDS.filter((f) => !selectedFields.some((sf) => sf.key === f.key)).length === 0 ? (
+                      <li><span className="dropdown-item-text text-muted small">Semua column sudah aktif</span></li>
+                    ) : (
+                      ALL_FIELDS.filter((f) => !selectedFields.some((sf) => sf.key === f.key)).map((f) => (
+                        <li key={f.key}>
+                          <button
+                            type="button"
+                            className="dropdown-item btn-sm text-start"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => addField(f)}
+                          >
+                            <i className="bi bi-plus me-1"></i> {f.label}
+                          </button>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
                 <button className="btn btn-outline-success btn-sm" onClick={exportCSV} disabled={selectedFields.length === 0 || registrations.length === 0}>
                   <i className="bi bi-filetype-csv me-1"></i> CSV
                 </button>
                 <button className="btn btn-outline-danger btn-sm" onClick={exportPDF} disabled={selectedFields.length === 0 || registrations.length === 0}>
                   <i className="bi bi-file-pdf me-1"></i> PDF (Print)
                 </button>
+                <button className="btn btn-outline-secondary btn-sm" onClick={saveColumnConfig} disabled={selectedFields.length === 0}>
+                  <i className="bi bi-save me-1"></i> Save
+                </button>
+                <button type="button" className="btn btn-outline-secondary btn-sm">
+                  <i className="bi bi-upload me-1"></i> Load
+                  <input type="file" accept=".json" className="d-none" onChange={loadColumnConfig} />
+                </button>
               </div>
             </div>
-
-            {/* Add Column dropdown */}
-            {showAddMenu && (
-              <div
-                className="position-absolute top-100 start-0 mt-2"
-                style={{ width: '240px', maxHeight: '340px', overflowY: 'auto', zIndex: 1040 }}>
-                <div className="dropdown-menu show p-2" style={{ width: '100%' }}>
-                  <small className="text-muted d-block mb-1 px-1">Add column:</small>
-                  {ALL_FIELDS.filter((f) => !selectedFields.some((sf) => sf.key === f.key)).length === 0 ? (
-                    <span className="dropdown-item-text text-muted small">Semua column sudah aktif</span>
-                  ) : (
-                    ALL_FIELDS.filter((f) => !selectedFields.some((sf) => sf.key === f.key)).map((f) => (
-                      <button
-                        key={f.key}
-                        type="button"
-                        className="dropdown-item btn-sm text-start"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => addField(f)}
-                      >
-                        <i className="bi bi-plus me-1"></i> {f.label}
-                      </button>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
 
             {/* Selected columns row */}
             <div className="px-3 py-2 border-bottom d-flex flex-wrap gap-2 align-items-center">
@@ -258,23 +276,9 @@ const ExportPage = () => {
                 <span className="text-muted small fst-italic">Tiada column dipilih — klik "Add Column"</span>
               ) : (
                 selectedFields.map((f, i) => (
-                  <span key={f.key} className="badge bg-secondary d-flex align-items-center gap-1">
-                    <span className="d-flex align-items-center">
-                      <i
-                        className="bi bi-grip-vertical me-1"
-                        style={{ cursor: 'grab', fontSize: '0.8em' }}
-                        draggable
-                        onDragStart={(e) => {
-                          (e.dataTransfer as any).setData('text/plain', String(i))
-                        }}
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => {
-                          const from = parseInt((e.dataTransfer as any).getData('text/plain'), 10)
-                          if (!isNaN(from) && from !== i) moveField(from, i)
-                        }}
-                      ></i>
-                      {f.label}
-                    </span>
+                  <span key={f.key} className="badge bg-secondary d-flex align-items-center gap-1" draggable onDragStart={(e) => { (e.dataTransfer as any).setData('text/plain', String(i)) }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { const from = parseInt((e.dataTransfer as any).getData('text/plain'), 10); if (!isNaN(from) && from !== i) moveField(from, i) }} style={{ cursor: 'grab' }}>
+                    <i className="bi bi-grip-vertical me-1" style={{ cursor: 'grab', fontSize: '0.8em' }}></i>
+                    {f.label}
                     <i
                       className="bi bi-x-lg ms-1"
                       style={{ cursor: 'pointer', fontSize: '0.7em' }}
