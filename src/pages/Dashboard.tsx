@@ -439,7 +439,7 @@ const Dashboard = () => {
               <div>
                 <label className="form-label small text-muted mb-1">Blok</label>
                 <select
-                  className="form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
+                  className="filter-select form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
                   value={filterBlock}
                   onChange={(e) => { setFilterBlock(e.target.value); setCurrentPage(1) }}
                 >
@@ -452,7 +452,7 @@ const Dashboard = () => {
               <div>
                 <label className="form-label small text-muted mb-1">Pemilik</label>
                 <select
-                  className="form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
+                  className="filter-select form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
                   value={filterOwner}
                   onChange={(e) => { setFilterOwner(e.target.value); setCurrentPage(1) }}
                 >
