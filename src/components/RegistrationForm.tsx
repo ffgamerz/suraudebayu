@@ -99,11 +99,9 @@ export default function RegistrationForm() {
   }
 
   const handleRegisterAnother = () => {
-    setFormData(initialState)
-    setErrors({})
-    setTouched({})
-    setSubmitError('')
-    setIsSubmitted(false)
+    // Simple hard reset — reload page to ensure clean validation state
+    // User requested: "bila tekan daftar wakil lain, refresh page saja"
+    window.location.reload()
   }
 
   const yearsOptions = ['1', '2', '3', '4', '5', '6', '7']
