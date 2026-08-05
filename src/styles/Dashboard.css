@@ -141,13 +141,27 @@ body:has(.dashboard-app) .app-wrapper {
 .dashboard-app .stat-card {
   background: #1e293b;
   border: 1px solid #334159;
+  border-radius: 0.75rem;
+}
+
+.dashboard-app .stat-card .stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
 }
 
 .dashboard-app .stat-card .stat-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #94a3bc;
+  color: #94a3b8;
   margin-bottom: 0.25rem;
 }
 
@@ -155,15 +169,23 @@ body:has(.dashboard-app) .app-wrapper {
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0.25rem 0;
+  color: #f1f5f9;
 }
 
+.dashboard-app .stat-card.total .stat-icon { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
 .dashboard-app .stat-card.total .stat-value { color: #38bdf8; }
+.dashboard-app .stat-card.owner .stat-icon { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
 .dashboard-app .stat-card.owner .stat-value { color: #4ade80; }
-.dashboard-app .stat-card.tenant .stat-value { color: #f59e0b; }
+.dashboard-app .stat-card.tenant .stat-icon { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+.dashboard-app .stat-card.tenant .stat-value { color: #fbbf24; }
+.dashboard-app .stat-card.today .stat-icon { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
 .dashboard-app .stat-card.today .stat-value { color: #a78bfa; }
+.dashboard-app .stat-card.b1 .stat-icon { background: rgba(244, 114, 182, 0.15); color: #f472b6; }
 .dashboard-app .stat-card.b1 .stat-value { color: #f472b6; }
-.dashboard-app .stat-card.b2 .stat-value { color: #fb92b2; }
-.dashboard-app .stat-card.b3 .stat-value { color: #fca5a5; }
+.dashboard-app .stat-card.b2 .stat-icon { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+.dashboard-app .stat-card.b2 .stat-value { color: #fb923c; }
+.dashboard-app .stat-card.b3 .stat-icon { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.dashboard-app .stat-card.b3 .stat-value { color: #10b981; }
 
 /* ===== Table Card ===== */
 .dashboard-app .table-card {

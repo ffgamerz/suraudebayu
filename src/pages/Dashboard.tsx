@@ -213,11 +213,8 @@ const Dashboard = () => {
     <div className="dashboard-app d-flex min-vh-100">
       {/* ===== Sidebar ===== */}
       <aside className={`sidebar ${sidebarOpen ? 'show' : ''}`} id="sidebar">
-        <div className="brand d-flex align-items-center px-4 mb-3">
-          <span className="fs-3 fw-bold text-primary">SB</span>
-          <span className="fs-5 fw-semibold text-white ms-2">
-            Surau De Bayu
-          </span>
+        <div className="brand px-4 mb-3">
+          <span className="fs-4 fw-bold text-white">Surau De Bayu</span>
         </div>
         <ul className="nav nav-pills flex-column mb-auto">
           <li className="nav-item mb-1">
@@ -287,46 +284,56 @@ const Dashboard = () => {
       <main className="main-content flex-grow-1" style={{ minWidth: 0 }}>
         {/* Stats Cards */}
         <div className="container-fluid px-0">
-          <div className="stats-grid row g-3 mb-4">
-            <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0">
-              <div className="card-body text-center">
-                <i className="stat-icon mb-2 bi bi-speedometer2 fs-4"></i>
-                <p className="stat-label mb-1">Jumlah Pendaftaran</p>
-                <h2 className="fw-bold mb-0">{stats.total}</h2>
+          <div className="stats-grid row g-4 mb-4">
+            <div className="col-6 col-md-4 col-lg">
+              <div className="stat-card total card h-100 border-0">
+                <div className="card-body text-center">
+                  <i className="stat-icon mb-3 bi bi-speedometer2"></i>
+                  <p className="stat-label mb-1">Jumlah Pendaftaran</p>
+                  <h2 className="stat-value fw-bold mb-0">{stats.total}</h2>
+                </div>
               </div>
             </div>
-            {stats.blocks.map((b) => (
-              <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0" key={b.label}>
-                <div className="card-body text-center">
-                  <i className="stat-icon mb-2 bi bi-building fs-4"></i>
-                  <p className="stat-label mb-1">{b.label}</p>
-                  <h2 className="fw-bold mb-0">{b.count}</h2>
+            {stats.blocks.map((b, idx) => (
+              <div className="col-6 col-md-4 col-lg" key={b.label}>
+                <div className={`stat-card ${['b1', 'b2', 'b3'][idx] || ''} card h-100 border-0`}>
+                  <div className="card-body text-center">
+                    <i className="stat-icon mb-3 bi bi-building"></i>
+                    <p className="stat-label mb-1">{b.label}</p>
+                    <h2 className="stat-value fw-bold mb-0">{b.count}</h2>
+                  </div>
                 </div>
               </div>
             ))}
-            <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0">
-              <div className="card-body text-center">
-                <i className="stat-icon mb-2 bi bi-person fs-4"></i>
-                <p className="stat-label mb-1">Penyewa</p>
-                <h2 className="fw-bold text-danger mb-0">
-                  {stats.owners.find((o) => o.label === 'Penyewa')?.count || 0}
-                </h2>
+            <div className="col-6 col-md-4 col-lg">
+              <div className="stat-card tenant card h-100 border-0">
+                <div className="card-body text-center">
+                  <i className="stat-icon mb-3 bi bi-person"></i>
+                  <p className="stat-label mb-1">Penyewa</p>
+                  <h2 className="stat-value fw-bold mb-0">
+                    {stats.owners.find((o) => o.label === 'Penyewa')?.count || 0}
+                  </h2>
+                </div>
               </div>
             </div>
-            <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0">
-              <div className="card-body text-center">
-                <i className="stat-icon mb-2 bi bi-person-check fs-4"></i>
-                <p className="stat-label mb-1">Pemilik</p>
-                <h2 className="fw-bold text-success mb-0">
-                  {stats.owners.find((o) => o.label === 'Pemilik')?.count || 0}
-                </h2>
+            <div className="col-6 col-md-4 col-lg">
+              <div className="stat-card owner card h-100 border-0">
+                <div className="card-body text-center">
+                  <i className="stat-icon mb-3 bi bi-person-check"></i>
+                  <p className="stat-label mb-1">Pemilik</p>
+                  <h2 className="stat-value fw-bold mb-0">
+                    {stats.owners.find((o) => o.label === 'Pemilik')?.count || 0}
+                  </h2>
+                </div>
               </div>
             </div>
-            <div className="col-6 col-md-4 col-lg stat-card card h-100 border-0">
-              <div className="card-body text-center">
-                <i className="stat-icon mb-2 bi bi-bell fs-4"></i>
-                <p className="stat-label mb-1">Aktiviti Hari Ini</p>
-                <h2 className="fw-bold mb-0">{stats.today}</h2>
+            <div className="col-6 col-md-4 col-lg">
+              <div className="stat-card today card h-100 border-0">
+                <div className="card-body text-center">
+                  <i className="stat-icon mb-3 bi bi-bell"></i>
+                  <p className="stat-label mb-1">Aktiviti Hari Ini</p>
+                  <h2 className="stat-value fw-bold mb-0">{stats.today}</h2>
+                </div>
               </div>
             </div>
           </div>
