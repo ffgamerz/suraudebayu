@@ -324,10 +324,10 @@ const Dashboard = () => {
       <main className="main-content flex-column flex-lg-row flex-grow-1 overflow-hidden">
         {/* Stats Cards */}
         <div className="container-fluid px-0">
-          <div className="stats-grid">
+          <div className="stats-grid row g-3 mb-4">
             <div className="stat-card card h-100 border-0">
               <div className="card-body text-center">
-                <i className="stat-icon mb-2 bi bi-speedometer2"></i>
+                <i className="stat-icon mb-2 bi bi-speedometer2 fs-4"></i>
                 <p className="stat-label mb-1">Jumlah Pendaftaran</p>
                 <h2 className="fw-bold mb-0">{stats.total}</h2>
               </div>
@@ -335,7 +335,7 @@ const Dashboard = () => {
             {stats.blocks.map((b) => (
               <div className="stat-card card h-100 border-0" key={b.label}>
                 <div className="card-body text-center">
-                  <i className="stat-icon mb-2 bi bi-building"></i>
+                  <i className="stat-icon mb-2 bi bi-building fs-4"></i>
                   <p className="stat-label mb-1">{b.label}</p>
                   <h2 className="fw-bold mb-0">{b.count}</h2>
                 </div>
@@ -343,7 +343,7 @@ const Dashboard = () => {
             ))}
             <div className="stat-card card h-100 border-0">
               <div className="card-body text-center">
-                <i className="stat-icon mb-2 bi bi-person"></i>
+                <i className="stat-icon mb-2 bi bi-person fs-4"></i>
                 <p className="stat-label mb-1">Penyewa</p>
                 <h2 className="fw-bold text-danger mb-0">
                   {stats.owners.find((o) => o.label === 'Penyewa')?.count || 0}
@@ -352,7 +352,7 @@ const Dashboard = () => {
             </div>
             <div className="stat-card card h-100 border-0">
               <div className="card-body text-center">
-                <i className="stat-icon mb-2 bi bi-person-check"></i>
+                <i className="stat-icon mb-2 bi bi-person-check fs-4"></i>
                 <p className="stat-label mb-1">Pemilik</p>
                 <h2 className="fw-bold text-success mb-0">
                   {stats.owners.find((o) => o.label === 'Pemilik')?.count || 0}
@@ -361,7 +361,7 @@ const Dashboard = () => {
             </div>
             <div className="stat-card card h-100 border-0">
               <div className="card-body text-center">
-                <i className="stat-icon mb-2 bi bi-bell"></i>
+                <i className="stat-icon mb-2 bi bi-bell fs-4"></i>
                 <p className="stat-label mb-1">Aktiviti Hari Ini</p>
                 <h2 className="fw-bold mb-0">{stats.today}</h2>
               </div>
