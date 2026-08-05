@@ -195,12 +195,15 @@ const ExportPage = () => {
               <h3 className="h6 fw-semibold mb-0 text-white">
                 <i className="bi bi-download me-2"></i> Eksport Data Ahli Kariah
               </h3>
-              <div className="d-flex align-items-center gap-2">
+              <div className="d-flex align-items-center gap-2 position-relative">
                 <small className="text-muted mb-0">{selectedFields.length} column dipilih</small>
                 <button
                   type="button"
                   className="btn btn-outline-secondary btn-sm text-nowrap"
-                  onClick={() => setShowAddMenu(!showAddMenu)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowAddMenu(!showAddMenu)
+                  }}
                 >
                   <i className="bi bi-plus-lg me-1"></i> Add Column
                 </button>
@@ -216,9 +219,8 @@ const ExportPage = () => {
             {/* Add Column dropdown */}
             {showAddMenu && (
               <div
-                className="position-absolute top-100 start-auto translate-middle-x mt-1"
-                style={{ width: '240px', maxHeight: '340px', overflowY: 'auto', zIndex: 1040 }}
-              >
+                className="position-absolute top-100 start-0 mt-2"
+                style={{ width: '240px', maxHeight: '340px', overflowY: 'auto', zIndex: 1040 }}>
                 <div className="dropdown-menu show p-2" style={{ width: '100%' }}>
                   <small className="text-muted d-block mb-1 px-1">Add column:</small>
                   {ALL_FIELDS.filter((f) => !selectedFields.some((sf) => sf.key === f.key)).length === 0 ? (
