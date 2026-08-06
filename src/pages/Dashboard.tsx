@@ -255,7 +255,7 @@ const Dashboard = () => {
         </div>
 
         {/* Registrations Table — native Bootstrap table + card */}
-        <div className="card border bg-white overflow-hidden">
+        <div className="card border bg-white table-card">
           <div className="card-header d-flex justify-content-between align-items-center bg-light border-bottom">
             <h3 className="h6 fw-semibold mb-0 text-dark">
               <i className="bi bi-journal-text me-2"></i> Senarai Pendaftar
@@ -335,8 +335,9 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Table directly — no wrapper divs, full-width to card border */}
-            <table className="table table-hover table-striped table-sm align-middle mb-0 small w-100 table-fit">
+            {/* table-responsive for horizontal scroll on mobile */}
+            <div className="table-responsive">
+              <table className="table table-hover table-striped table-sm align-middle mb-0 small w-100 table-fit">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
@@ -378,6 +379,7 @@ const Dashboard = () => {
                   )}
                 </tbody>
               </table>
+              </div>
           </div>
         </div>
 

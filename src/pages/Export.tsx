@@ -433,7 +433,7 @@ const ExportPage = () => {
         </div>
 
         {/* Preview */}
-        <div className="card border bg-white overflow-hidden export-preview" style={{ zIndex: 1 }}>
+        <div className="card border bg-white export-preview" style={{ zIndex: 1 }}>
           <div className="card-header bg-light border-secondary">
             <h4 className="h6 fw-semibold mb-0 text-dark">
               <i className="bi bi-eye me-2"></i> Preview ({registrations.length} rekod)
@@ -441,7 +441,8 @@ const ExportPage = () => {
           </div>
           {/* Card body — table directly for full-width border fit */}
           <div className="card-body p-0">
-            <table className="table table-hover table-striped table-sm align-middle mb-0 small w-100 table-fit">
+            <div className="table-responsive">
+              <table className="table table-hover table-striped table-sm align-middle mb-0 small w-100 table-fit">
               <thead>
                 <tr>
                   {selectedFields.length > 0 && (
@@ -507,6 +508,7 @@ const ExportPage = () => {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 

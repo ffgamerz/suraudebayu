@@ -110,7 +110,7 @@ const AhliKariah = () => {
     <DashboardLayout mobileTitle="Ahli Kariah">
       <div className="container-fluid px-0">
         {/* Search card */}
-        <div className="card border bg-white mb-4">
+        <div className="card border bg-white mb-4 table-card">
           <div className="card-header d-flex justify-content-between align-items-center bg-light">
             <h3 className="h6 fw-semibold mb-0 text-dark">
               <i className="bi bi-person me-2"></i> Senarai Ahli Kariah

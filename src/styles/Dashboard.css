@@ -161,6 +161,12 @@ body:has(.dashboard-app) .app-wrapper {
   overflow: hidden;
 }
 
+/* Allow table-responsive to scroll inside data table cards on mobile */
+.dashboard-app .card.table-card,
+.dashboard-app .export-preview {
+  overflow: visible !important;
+}
+
 .dashboard-app .card.bg-white:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
 }
@@ -474,6 +480,8 @@ body:has(.dashboard-app) .app-wrapper {
 .dashboard-app .export-preview {
   position: relative;
   z-index: 1;
+  /* Allow horizontal scroll of table-responsive on mobile */
+  overflow: visible !important;
 }
 @media (max-width: 991.98px) {
   .dashboard-app {
