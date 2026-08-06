@@ -43,8 +43,8 @@ const ExportPage = () => {
     if (!sortBy) return registrations
     const sorted = [...registrations]
     sorted.sort((a, b) => {
-      const aVal = (a as Record<string, unknown>)[sortBy]
-      const bVal = (b as Record<string, unknown>)[sortBy]
+      const aVal = (a as unknown as Record<string, unknown>)[sortBy]
+      const bVal = (b as unknown as Record<string, unknown>)[sortBy]
       const aStr = aVal == null ? '' : String(aVal)
       const bStr = bVal == null ? '' : String(bVal)
       if (aStr < bStr) return sortDir === 'asc' ? -1 : 1
@@ -116,7 +116,6 @@ const ExportPage = () => {
     const filtered = configs.filter((c) => c.name !== name)
     localStorage.setItem('kariahExportConfigs', JSON.stringify([...filtered, { name, fields: keys }]))
     showToast(`Column config disave: "${name}"`)
-    setShowLoadMenu(false)
   }
 
   const applyConfig = (cfg: SavedConfig) => {
@@ -127,7 +126,6 @@ const ExportPage = () => {
       setSelectedFields(loaded)
       showToast(`Column config dimuat: "${cfg.name}"`)
     }
-    setShowLoadMenu(false)
   }
 
   const deleteConfig = (name: string) => {
@@ -160,7 +158,7 @@ const ExportPage = () => {
   }
 
   const formatCell = (row: RegistrationRow, field: FieldDef) => {
-    const val = (row as Record<string, unknown>)[field.key]
+    const val = (row as unknown as Record<string, unknown>)[field.key]
     if (field.key === 'created_at') {
       return new Date(val as string).toLocaleDateString('ms-MY')
     }
