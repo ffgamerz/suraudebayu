@@ -109,8 +109,8 @@ const AhliKariah = () => {
   return (
     <DashboardLayout mobileTitle="Ahli Kariah">
       <div className="container-fluid px-0">
-        {/* Search */}
-        <div className="card border bg-white overflow-hidden">
+        {/* Search card */}
+        <div className="card border bg-white mb-4">
           <div className="card-header d-flex justify-content-between align-items-center bg-light">
             <h3 className="h6 fw-semibold mb-0 text-dark">
               <i className="bi bi-person me-2"></i> Senarai Ahli Kariah
@@ -134,10 +134,10 @@ const AhliKariah = () => {
             </div>
           </div>
 
-          {/* Card body — box-in-box: filter + table wrapped in inner div for border visibility */}
+          {/* Card body — table directly for full-width border fit */}
           <div className="card-body p-0">
+            {/* Pagination info */}
             <div className="px-3 py-2">
-              {/* Pagination info */}
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-2 border-bottom pb-2">
                 <small className="text-muted">
                   {filtered.length} ahli kariah · Halaman {currentPage} daripada {totalPages}
@@ -171,8 +171,9 @@ const AhliKariah = () => {
               </div>
             </div>
 
-            {/* Table directly — no wrapper divs so edges reach card border */}
-            <table className="table table-hover table-striped table-sm align-middle mb-0 small w-100 table-fit">
+            {/* table-responsive for horizontal scroll on mobile */}
+            <div className="table-responsive">
+              <table className="table table-hover table-striped table-sm align-middle mb-0 small w-100 table-fit">
               <thead>
                 <tr>
                   <th scope="col">#</th>
@@ -247,7 +248,8 @@ const AhliKariah = () => {
                 )}
               </tbody>
           </table>
-        </div>
+            </div>
+          </div>
       </div>
     </div>
 
