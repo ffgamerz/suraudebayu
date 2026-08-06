@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { RegistrationFormData } from '../lib/types'
 import '../styles/Dashboard.css'
-import { jsPDF } from 'jspdf'
-import 'jspdf-autotable'
 
 type RegistrationRow = RegistrationFormData & {
   id: number
   created_at: string
 }
 
-type FieldDef = { key: keyof RegistrationRow; label: string }
+type FieldDef = { key: string; label: string }
 
 const ALL_FIELDS: FieldDef[] = [
   { key: 'nama_pemohon', label: 'Nama Pemohon' },
@@ -26,6 +24,7 @@ const ALL_FIELDS: FieldDef[] = [
   { key: 'tempoh_masa_menetap', label: 'Tempoh Tinggal' },
   { key: 'bilangan_isi_rumah', label: 'Isi Rumah' },
   { key: 'created_at', label: 'Tarikh Daftar' },
+  { key: 'signature', label: 'Tanda Tangan Kehadiran' },
 ]
 
 const ExportPage = () => {
@@ -36,6 +35,24 @@ const ExportPage = () => {
   const [selectedFields, setSelectedFields] = useState<FieldDef[]>([])
   const [toast, setToast] = useState('')
   const navigate = useNavigate()
+  const [sortBy, setSortBy] = useState<string | null>(null)
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+
+  // Sort registrations by selected column (used in both preview and print output)
+  const sortedRegistrations = useMemo(() => {
+    if (!sortBy) return registrations
+    const sorted = [...registrations]
+    sorted.sort((a, b) => {
+      const aVal = (a as Record<string, unknown>)[sortBy]
+      const bVal = (b as Record<string, unknown>)[sortBy]
+      const aStr = aVal == null ? '' : String(aVal)
+      const bStr = bVal == null ? '' : String(bVal)
+      if (aStr < bStr) return sortDir === 'asc' ? -1 : 1
+      if (aStr > bStr) return sortDir === 'asc' ? 1 : -1
+      return 0
+    })
+    return sorted
+  }, [registrations, sortBy, sortDir])
 
   useEffect(() => {
     fetchRegistrations()
@@ -143,11 +160,12 @@ const ExportPage = () => {
   }
 
   const formatCell = (row: RegistrationRow, field: FieldDef) => {
-    const val = row[field.key]
+    const val = (row as Record<string, unknown>)[field.key]
     if (field.key === 'created_at') {
       return new Date(val as string).toLocaleDateString('ms-MY')
     }
     if (field.key === 'pengakuan') return val ? 'Ya' : 'Tidak'
+    if (field.key === 'signature') return ''
     return val == null || val === '' ? '—' : String(val)
   }
 
@@ -164,28 +182,85 @@ const ExportPage = () => {
     URL.revokeObjectURL(url)
   }
 
-  const exportPDF = () => {
-    const doc = new jsPDF('p', 'mm', 'a4')
-    const headers = selectedFields.map((f) => f.label)
-    const body = registrations.map((r) => selectedFields.map((f) => formatCell(r, f)))
+  const handlePrint = () => {
+    const escapeHtml = (str: string) =>
+      str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
 
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Senarai Ahli Kariah', 15, 20)
-    doc.setFontSize(9)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Tarikh Eksport: ${new Date().toLocaleDateString('ms-MY')}`, 15, 27)
-    doc.text(`Jumlah Rekod: ${registrations.length}`, 15, 32)
+    const today = new Date().toLocaleDateString('ms-MY')
 
-    ;(doc as any).autoTable({
-      startY: 38,
-      head: [headers],
-      body,
-      theme: 'grid',
-      styles: { fontSize: 7.5, cellWidth: 'wrap' },
-      headStyles: { fillColor: [15, 23, 42], textColor: [226, 232, 240] },
-    })
-    doc.save(`kariah_export_${new Date().toISOString().split('T')[0]}.pdf`)
+    // Build bold column-title row — always start with "No" sequence column
+    const thead =
+      '<th>No</th>' +
+      selectedFields
+        .map((f) => `<th>${escapeHtml(f.label)}</th>`)
+        .join('')
+
+    // Build data rows — prepend sequential "No" for each row
+    const tbody = sortedRegistrations
+      .map(
+        (r, i) =>
+          '<tr>' +
+          `<td>${i + 1}</td>` +
+          selectedFields.map((f) => `<td>${escapeHtml(formatCell(r, f))}</td>`).join('') +
+          '</tr>'
+      )
+      .join('')
+
+    const html = `<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Senarai Ahli Kariah — Surau De Bayu</title>
+  <style>
+    @page { size: A4; margin: 20mm; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #fff;
+      color: #000;
+      margin: 0;
+      padding: 0;
+    }
+    .a4-page { width: 100%; margin: 0 auto; }
+    .print-header { text-align: center; margin-bottom: 24px; }
+    .print-header h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+    .print-header p { font-size: 12px; color: #555; margin: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th, td {
+      border: 1px solid #000;
+      padding: 6px 8px;
+      text-align: left;
+      word-break: break-word;
+      vertical-align: top;
+    }
+    th { font-weight: 700; background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <div class="a4-page">
+    <div class="print-header">
+      <h1>Senarai Ahli Kariah — Surau De Bayu</h1>
+      <p>Tarikh: ${today} | Jumlah Rekod: ${registrations.length}</p>
+    </div>
+    <table>
+      <thead><tr>${thead}</tr></thead>
+      <tbody>${tbody}</tbody>
+    </table>
+  </div>
+</body>
+</html>`
+
+    const w = window.open('', '_blank', 'width=800,height=600,noreferrer=noopener')
+    if (w) {
+      w.document.write(html)
+      w.document.close()
+      w.focus()
+    }
   }
 
   return (
@@ -321,8 +396,8 @@ const ExportPage = () => {
                 <button className="btn btn-outline-success btn-sm" onClick={exportCSV} disabled={selectedFields.length === 0 || registrations.length === 0}>
                   <i className="bi bi-filetype-csv me-1"></i> CSV
                 </button>
-                <button className="btn btn-outline-danger btn-sm" onClick={exportPDF} disabled={selectedFields.length === 0 || registrations.length === 0}>
-                  <i className="bi bi-file-pdf me-1"></i> PDF (Print)
+                <button className="btn btn-outline-danger btn-sm" onClick={handlePrint} disabled={selectedFields.length === 0 || registrations.length === 0}>
+                  <i className="bi bi-printer me-1"></i> Cetak
                 </button>
               </div>
             </div>
@@ -348,15 +423,18 @@ const ExportPage = () => {
             </div>
           </div>
 
-          {/* Preview */}
-          <div className="px-3 px-lg-4 pb-4">
-            <h4 className="h6 fw-semibold text-white mb-3">
+{/* Preview */}
+<div className="preview-card">
+            <h4 className="preview-title">
               <i className="bi bi-eye me-2"></i> Preview ({registrations.length} rekod)
             </h4>
-            <div className="table-responsive">
+            <div className="table-responsive px-3 px-lg-4 pb-3 pt-2">
               <table className="table table-dark-custom table-hover align-middle mb-0">
                 <thead>
                   <tr>
+                    {selectedFields.length > 0 && (
+                      <th scope="col" className="text-center" style={{ width: '40px' }}>No</th>
+                    )}
                     {selectedFields.length === 0 ? (
                       <th scope="col" className="text-muted fst-italic">Tiada column dipilih</th>
                     ) : (
@@ -364,6 +442,18 @@ const ExportPage = () => {
                         <th key={f.key} scope="col">
                           <span className="d-flex align-items-center gap-1">
                             {f.label}
+                            <i
+                              className={`bi bi-arrow-up ms-1 ${sortBy === f.key && sortDir === 'asc' ? 'text-primary' : 'text-muted'}`}
+                              style={{ cursor: 'pointer', fontSize: '0.65em' }}
+                              onClick={() => { setSortBy(f.key); setSortDir('asc') }}
+                              title="Sort ascending"
+                            ></i>
+                            <i
+                              className={`bi bi-arrow-down ms-1 ${sortBy === f.key && sortDir === 'desc' ? 'text-primary' : 'text-muted'}`}
+                              style={{ cursor: 'pointer', fontSize: '0.65em' }}
+                              onClick={() => { setSortBy(f.key); setSortDir('desc') }}
+                              title="Sort descending"
+                            ></i>
                             <i
                               className="bi bi-x-lg ms-1"
                               style={{ cursor: 'pointer', fontSize: '0.7em', opacity: 0.5 }}
@@ -379,7 +469,7 @@ const ExportPage = () => {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={Math.max(selectedFields.length, 1)} className="text-center py-4">
+                      <td colSpan={selectedFields.length + 1} className="text-center py-4">
                         <div className="spinner-border text-primary" role="status">
                           <span className="visually-hidden">Loading...</span>
                         </div>
@@ -387,13 +477,16 @@ const ExportPage = () => {
                     </tr>
                   ) : registrations.length === 0 ? (
                     <tr>
-                      <td colSpan={Math.max(selectedFields.length, 1)} className="text-center py-4 text-muted">
+                      <td colSpan={selectedFields.length + 1} className="text-center py-4 text-muted">
                         Tiada rekod dijumpai.
                       </td>
                     </tr>
                   ) : (
-                    registrations.map((r) => (
+                    sortedRegistrations.map((r, i) => (
                       <tr key={r.id}>
+                        {selectedFields.length > 0 && (
+                          <td className="text-center">{i + 1}</td>
+                        )}
                         {selectedFields.map((f) => (
                           <td key={f.key}>{formatCell(r, f)}</td>
                         ))}

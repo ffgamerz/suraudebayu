@@ -249,6 +249,25 @@ body:has(.dashboard-app) .app-wrapper {
   background: rgba(56, 178, 227, 0.05);
 }
 
+/* ===== Preview Card ===== */
+.dashboard-app .preview-card {
+  background: #1e293b;
+  border: 1px solid #334159;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.dashboard-app .preview-card .preview-title {
+  background: #0f172a;
+  border-bottom: 1px solid #334159;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
 .dashboard-app .badge-owner {
   background: rgba(74, 222, 128, 0.15);
   color: #4ade80;
