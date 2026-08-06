@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { RegistrationFormData } from '../lib/types'
+import DashboardLayout from '../components/DashboardLayout'
 import '../styles/Dashboard.css'
 
 type RegistrationRow = RegistrationFormData & {
@@ -16,8 +15,13 @@ const BLOCK_LABELS: Record<string, string> = {
   DB03: 'Blok 3',
 }
 
+const BLOCK_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  DB01: { bg: 'rgba(13, 110, 253, 0.12)', text: '#0d6efd', border: 'rgba(13, 110, 253, 0.2)' },
+  DB02: { bg: 'rgba(255, 193, 7, 0.12)', text: '#ffc107', border: 'rgba(255, 193, 7, 0.2)' },
+  DB03: { bg: 'rgba(40, 167, 69, 0.12)', text: '#28a745', border: 'rgba(40, 167, 69, 0.2)' },
+}
+
 const Dashboard = () => {
-  const { signOut } = useAuth()
   const [registrations, setRegistrations] = useState<RegistrationRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -30,8 +34,6 @@ const Dashboard = () => {
   const [dateTo, setDateTo] = useState('')
   const sortKey = 'created_at' as const
   const sortOrder: 'asc' | 'desc' = 'desc'
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const navigate = useNavigate()
 
   useEffect(() => {
     fetchRegistrations()
@@ -101,6 +103,7 @@ const Dashboard = () => {
       blocks: Object.entries(blockCounts).map(([k, v]) => ({
         label: BLOCK_LABELS[k] || k,
         count: v,
+        key: k,
       })),
       owners: Object.entries(ownerCounts).map(([k, v]) => ({
         label: k,
@@ -140,11 +143,6 @@ const Dashboard = () => {
     URL.revokeObjectURL(url)
   }
 
-  const handleLogout = async () => {
-    await signOut()
-    navigate('/login')
-  }
-
   const clearAllFilters = () => {
     setSearch('')
     setFilterBlock('')
@@ -155,217 +153,190 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="dashboard-app d-flex min-vh-100">
-      {/* ===== Sidebar ===== */}
-      <aside className={`sidebar ${sidebarOpen ? 'show' : ''}`} id="sidebar">
-        <div className="brand px-4 mb-3">
-          <span className="fs-4 fw-bold text-white">Surau De Bayu</span>
-        </div>
-        <ul className="nav nav-pills flex-column mb-auto">
-          <li className="nav-item mb-1">
-            <a href="#dashboard" className="nav-link active" aria-current="page">
-              <i className="me-2 bi bi-speedometer2"></i> Dashboard
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="/ahli-kariah" className="nav-link text-white">
-              <i className="me-2 bi bi-person"></i> Ahli Kariah
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="/export" className="nav-link text-white">
-              <i className="me-2 bi bi-download"></i> Eksport Data
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="#pendaftaran" className="nav-link text-white">
-              <i className="me-2 bi bi-list-ul"></i> Pendaftaran
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="#acara" className="nav-link text-white">
-              <i className="me-2 bi bi-calendar-event"></i> Acara
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="#pengumuman" className="nav-link text-white">
-              <i className="me-2 bi bi-megaphone"></i> Pengumuman
-            </a>
-          </li>
-          <li className="nav-item mb-1">
-            <a href="#laporan" className="nav-link text-white">
-              <i className="me-2 bi bi-file-text"></i> Laporan
-            </a>
-          </li>
-        </ul>
-        <hr className="border-secondary" />
-        <div className="dropdown" style={{ padding: '0 1.5rem 1.5rem' }}>
-          <a
-            href="#logout"
-            className="d-flex align-items-center text-danger text-decoration-none"
-            onClick={handleLogout}
-            style={{ cursor: 'pointer' }}
-          >
-            <i className="me-2 bi bi-box-arrow-right"></i>
-            <span>Log Keluar</span>
-          </a>
-        </div>
-      </aside>
-
-      {/* ===== Overlay (mobile) ===== */}
-      <div
-        className={`overlay ${sidebarOpen ? 'show' : ''}`}
-        onClick={() => setSidebarOpen(false)}
-      />
-
-      {/* ===== Mobile Header (hamburger, <992px only) ===== */}
-      <header className="mobile-header">
-        <button
-          className="btn btn-outline-secondary btn-sm menu-btn"
-          type="button"
-          onClick={() => setSidebarOpen(true)}
-        >
-          <i className="bi bi-list"></i>
-        </button>
-        <h1 className="h6 fw-semibold mb-0 text-white">Surau De Bayu</h1>
-      </header>
-
-      {/* ===== Main Content ===== */}
-      <main className="main-content flex-grow-1" style={{ minWidth: 0 }}>
-        {/* Stats Cards */}
-        <div className="container-fluid px-0">
-          <div className="stats-grid row g-4 mb-4">
-            <div className="col-6 col-md-4 col-lg">
-              <div className="stat-card total card h-100 border-0">
-                <div className="card-body text-center">
-                  <i className="stat-icon mb-3 bi bi-speedometer2"></i>
-                  <p className="stat-label mb-1">Jumlah Pendaftaran</p>
-                  <h2 className="stat-value fw-bold mb-0">{stats.total}</h2>
-                </div>
-              </div>
-            </div>
-            {stats.blocks.map((b, idx) => (
-              <div className="col-6 col-md-4 col-lg" key={b.label}>
-                <div className={`stat-card ${['b1', 'b2', 'b3'][idx] || ''} card h-100 border-0`}>
-                  <div className="card-body text-center">
-                    <i className="stat-icon mb-3 bi bi-building"></i>
-                    <p className="stat-label mb-1">{b.label}</p>
-                    <h2 className="stat-value fw-bold mb-0">{b.count}</h2>
-                  </div>
-                </div>
-              </div>
-            ))}
-            <div className="col-6 col-md-4 col-lg">
-              <div className="stat-card tenant card h-100 border-0">
-                <div className="card-body text-center">
-                  <i className="stat-icon mb-3 bi bi-person"></i>
-                  <p className="stat-label mb-1">Penyewa</p>
-                  <h2 className="stat-value fw-bold mb-0">
-                    {stats.owners.find((o) => o.label === 'Penyewa')?.count || 0}
-                  </h2>
-                </div>
-              </div>
-            </div>
-            <div className="col-6 col-md-4 col-lg">
-              <div className="stat-card owner card h-100 border-0">
-                <div className="card-body text-center">
-                  <i className="stat-icon mb-3 bi bi-person-check"></i>
-                  <p className="stat-label mb-1">Pemilik</p>
-                  <h2 className="stat-value fw-bold mb-0">
-                    {stats.owners.find((o) => o.label === 'Pemilik')?.count || 0}
-                  </h2>
-                </div>
-              </div>
-            </div>
-            <div className="col-6 col-md-4 col-lg">
-              <div className="stat-card today card h-100 border-0">
-                <div className="card-body text-center">
-                  <i className="stat-icon mb-3 bi bi-bell"></i>
-                  <p className="stat-label mb-1">Aktiviti Hari Ini</p>
-                  <h2 className="stat-value fw-bold mb-0">{stats.today}</h2>
-                </div>
+    <DashboardLayout mobileTitle="Dashboard">
+      <div className="container-fluid px-0">
+        {/* Stats Cards — using native Bootstrap card + utility classes */}
+        <div className="row g-4 mb-4">
+          {/* Total Registrations — soft blue background */}
+          <div className="col-12 col-md-6 col-lg-3">
+            <div className="card h-100 stat-card-primary">
+              <div className="card-body text-center">
+                <i className="bi bi-speedometer2 fs-1 mb-3 stat-icon"></i>
+                <p className="text-uppercase small text-muted mb-1 fw-semibold">Jumlah Pendaftaran</p>
+                <h2 className={`fw-bold mb-0 ${stats.total === 0 ? 'text-muted' : 'text-dark'} fs-2`}>{stats.total}</h2>
               </div>
             </div>
           </div>
 
-          {/* Registrations Table */}
-          <div className="table-card card">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h3 className="h6 fw-semibold mb-0 text-white"><i className="bi bi-journal-text me-2"></i> Senarai Pendaftar</h3>
-              <div className="d-flex gap-2 flex-wrap">
-                <div className="input-group input-group-sm" style={{ maxWidth: '280px' }}>
-                  <span className="input-group-text bg-secondary bg-opacity-10 border-0 text-muted">
-                    <i className="bi bi-search"></i>
-                  </span>
+          {/* Block Breakdown — single card with small horizontal bars */}
+          <div className="col-12 col-md-6 col-lg-3">
+            <div className="card h-100 stat-card-block">
+              <div className="card-body">
+                <i className="bi bi-building fs-1 mb-3 stat-icon"></i>
+                <p className="text-uppercase small text-muted mb-2 fw-semibold">Pendaftaran Mengikut Blok</p>
+                {stats.blocks.map((b) => {
+                  const color = BLOCK_COLORS[b.key] || BLOCK_COLORS.DB01
+                  const max = Math.max(...stats.blocks.map(x => x.count), 1)
+                  const pct = (b.count / max) * 100
+                  return (
+                    <div key={b.key} className="mb-2">
+                      <div className="d-flex justify-content-between small text-muted">
+                        <span>{b.label}</span>
+                        <span className="fw-medium text-dark">{b.count}</span>
+                      </div>
+                      <div className="progress" style={{ height: '6px' }}>
+                        <div
+                          className="progress-bar"
+                          role="progressbar"
+                          style={{ width: `${pct}%`, backgroundColor: color.text, boxShadow: `0 0 6px ${color.bg}` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Pemilik & Penyewa — combined card with mini bars */}
+          <div className="col-12 col-md-6 col-lg-3">
+            <div className="card h-100 stat-card-pemilik">
+              <div className="card-body">
+                {(() => {
+                  const pemilikCount = stats.owners.find((o) => o.label === 'Pemilik')?.count || 0
+                  const penyewaCount = stats.owners.find((o) => o.label === 'Penyewa')?.count || 0
+                  return (
+                    <>
+                      <i className="bi bi-people fs-1 mb-3 stat-icon"></i>
+                      <p className="text-uppercase small text-muted mb-2 fw-semibold">Pemilik & Penyewa</p>
+                      <div className="mb-2">
+                        <div className="d-flex justify-content-between small text-muted">
+                          <span>Pemilik</span>
+                          <span className="fw-medium text-dark">{pemilikCount}</span>
+                        </div>
+                        <div className="progress" style={{ height: '6px' }}>
+                          <div
+                            className="progress-bar"
+                            role="progressbar"
+                            style={{ width: `${pemilikCount > 0 ? 100 : 0}%`, backgroundColor: '#28a745' }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="mb-2">
+                        <div className="d-flex justify-content-between small text-muted">
+                          <span>Penyewa</span>
+                          <span className="fw-medium text-dark">{penyewaCount}</span>
+                        </div>
+                        <div className="progress" style={{ height: '6px' }}>
+                          <div
+                            className="progress-bar"
+                            role="progressbar"
+                            style={{ width: `${penyewaCount > 0 ? 100 : 0}%`, backgroundColor: penyewaCount > 0 ? '#ffc107' : '#6c757d' }}
+                          ></div>
+                        </div>
+                      </div>
+                    </>
+                  )
+                })()}
+              </div>
+            </div>
+          </div>
+
+          {/* Aktiviti Hari Ini — soft purple background */}
+          <div className="col-12 col-md-6 col-lg-3">
+            <div className="card h-100 stat-card-activity">
+              <div className="card-body text-center">
+                <i className="bi bi-bell fs-1 mb-3 stat-icon"></i>
+                <p className="text-uppercase small text-muted mb-1 fw-semibold">Aktiviti Hari Ini</p>
+                <h2 className={`fw-bold mb-0 ${stats.today === 0 ? 'text-muted' : 'text-dark'} fs-2`}>{stats.today}</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Registrations Table — native Bootstrap table + card */}
+        <div className="card border bg-white overflow-hidden">
+          <div className="card-header d-flex justify-content-between align-items-center bg-light border-bottom">
+            <h3 className="h6 fw-semibold mb-0 text-dark">
+              <i className="bi bi-journal-text me-2"></i> Senarai Pendaftar
+            </h3>
+            <div className="d-flex gap-2 flex-wrap align-items-center">
+              <div className="input-group input-group-sm" style={{ maxWidth: '280px' }}>
+                <span className="input-group-text bg-light text-muted border-secondary">
+                  <i className="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control bg-light text-dark border-secondary"
+                  placeholder="Cari nama, IC, unit..."
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
+                />
+              </div>
+              <button className="btn btn-sm btn-outline-success d-none d-sm-inline-block" onClick={exportCSV}>
+                <i className="bi bi-download me-1"></i> Export CSV
+              </button>
+            </div>
+          </div>
+
+          {/* Card body — table directly in card-body for full-width border fit */}
+          <div className="card-body p-0">
+            <div className="px-3 py-2">
+              {/* Filter row (responsive) */}
+              <div className="row g-2 g-lg-3 align-items-end">
+                <div className="col-6 col-lg-auto">
+                  <label className="form-label small text-muted mb-1">Blok</label>
+                  <select
+                    className="form-select form-select-sm bg-light text-dark border-secondary"
+                    value={filterBlock}
+                    onChange={(e) => { setFilterBlock(e.target.value); setCurrentPage(1) }}
+                  >
+                    <option value="">Semua</option>
+                    <option value="DB01">Blok 1</option>
+                    <option value="DB02">Blok 2</option>
+                    <option value="DB03">Blok 3</option>
+                  </select>
+                </div>
+                <div className="col-6 col-lg-auto">
+                  <label className="form-label small text-muted mb-1">Pemilik</label>
+                  <select
+                    className="form-select form-select-sm bg-light text-dark border-secondary"
+                    value={filterOwner}
+                    onChange={(e) => { setFilterOwner(e.target.value); setCurrentPage(1) }}
+                  >
+                    <option value="">Semua</option>
+                    <option value="Pemilik">Pemilik</option>
+                    <option value="Penyewa">Penyewa</option>
+                  </select>
+                </div>
+                <div className="col-6 col-lg-auto">
+                  <label className="form-label small text-muted mb-1">Dari</label>
                   <input
-                    type="text"
-                    className="form-control border-0 bg-secondary bg-opacity-10 text-white"
-                    placeholder="Cari nama, IC, unit..."
-                    value={search}
-                    onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
+                    type="date"
+                    className="form-control form-control-sm bg-light text-dark border-secondary"
+                    value={dateFrom}
+                    onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1) }}
                   />
                 </div>
-                <button className="btn btn-outline-success btn-sm d-none d-sm-inline-block" onClick={exportCSV}>
-                  <i className="bi bi-download me-1"></i> Export CSV
-                </button>
+                <div className="col-6 col-lg-auto">
+                  <label className="form-label small text-muted mb-1">Sehingga</label>
+                  <input
+                    type="date"
+                    className="form-control form-control-sm bg-light text-dark border-secondary"
+                    value={dateTo}
+                    onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1) }}
+                  />
+                </div>
+                <div className="col-12 col-lg-auto">
+                  <button className="btn btn-sm btn-outline-secondary w-100" onClick={clearAllFilters}>
+                    Reset
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Filter row (responsive) */}
-            <div className="row g-2 g-lg-3 px-3 py-2 border-bottom align-items-end">
-              <div className="col-6 col-lg-auto">
-                <label className="form-label small text-muted mb-1">Blok</label>
-                <select
-                  className="filter-select form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
-                  value={filterBlock}
-                  onChange={(e) => { setFilterBlock(e.target.value); setCurrentPage(1) }}
-                >
-                  <option value="">Semua</option>
-                  <option value="DB01">Blok 1</option>
-                  <option value="DB02">Blok 2</option>
-                  <option value="DB03">Blok 3</option>
-                </select>
-              </div>
-              <div className="col-6 col-lg-auto">
-                <label className="form-label small text-muted mb-1">Pemilik</label>
-                <select
-                  className="filter-select form-select form-select-sm bg-secondary bg-opacity-10 border-0 text-white"
-                  value={filterOwner}
-                  onChange={(e) => { setFilterOwner(e.target.value); setCurrentPage(1) }}
-                >
-                  <option value="">Semua</option>
-                  <option value="Pemilik">Pemilik</option>
-                  <option value="Penyewa">Penyewa</option>
-                </select>
-              </div>
-              <div className="col-6 col-lg-auto">
-                <label className="form-label small text-muted mb-1">Dari</label>
-                <input
-                  type="date"
-                  className="form-control form-control-sm bg-secondary bg-opacity-10 border-0 text-white"
-                  value={dateFrom}
-                  onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1) }}
-                />
-              </div>
-              <div className="col-6 col-lg-auto">
-                <label className="form-label small text-muted mb-1">Sehingga</label>
-                <input
-                  type="date"
-                  className="form-control form-control-sm bg-secondary bg-opacity-10 border-0 text-white"
-                  value={dateTo}
-                  onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1) }}
-                />
-              </div>
-              <div className="col-12 col-lg-auto">
-                <button className="btn btn-outline-secondary btn-sm w-100" onClick={clearAllFilters}>
-                  Reset
-                </button>
-              </div>
-            </div>
-
-            {/* Desktop table */}
-            <div className="table-responsive">
-              <table className="table table-dark-custom table-hover mb-0 align-middle">
+            {/* Table directly — no wrapper divs, full-width to card border */}
+            <table className="table table-hover table-striped table-sm align-middle mb-0 small w-100 table-fit">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
@@ -394,10 +365,10 @@ const Dashboard = () => {
                     paginated.map((r, i) => (
                       <tr key={r.id}>
                         <td>{startIndex + i + 1}</td>
-                        <td>{r.nama_pemohon}</td>
+                        <td className="table-name">{r.nama_pemohon}</td>
                         <td>{r.no_unit}</td>
                         <td>
-                          <span className={`badge ${r.status_pemilikan === 'Pemilik' ? 'badge-owner' : 'badge-tenant'}`}>
+                          <span className={`badge ${r.status_pemilikan === 'Pemilik' ? 'badge-soft-success' : 'badge-soft-warning'}`}>
                             {r.status_pemilikan}
                           </span>
                         </td>
@@ -407,10 +378,61 @@ const Dashboard = () => {
                   )}
                 </tbody>
               </table>
-            </div>
           </div>
         </div>
-      </main>
+
+        {/* Pagination */}
+        {filtered.length > itemsPerPage && (
+          <nav aria-label="Page navigation" className="mt-3">
+            <ul className="pagination justify-content-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => setCurrentPage(1)}>
+                  First
+                </button>
+              </li>
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  aria-label="Previous"
+                >
+                  <i className="bi bi-chevron-left"></i>
+                </button>
+              </li>
+              {Array.from({ length: Math.ceil(filtered.length / itemsPerPage) }).map((_, idx) => {
+                const pageNum = idx + 1
+                const startPage = Math.max(1, Math.min(pageNum - 2, Math.ceil(filtered.length / itemsPerPage) - 4))
+                const endPage = Math.min(Math.ceil(filtered.length / itemsPerPage), startPage + 4)
+                if (pageNum < startPage || pageNum > endPage) return null
+                return (
+                  <li key={pageNum} className={`page-item ${currentPage === pageNum ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => setCurrentPage(pageNum)}>
+                      {pageNum}
+                    </button>
+                  </li>
+                )
+              })}
+              <li className={`page-item ${currentPage === Math.ceil(filtered.length / itemsPerPage) ? 'disabled' : ''}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  aria-label="Next"
+                >
+                  <i className="bi bi-chevron-right"></i>
+                </button>
+              </li>
+              <li className={`page-item ${currentPage === Math.ceil(filtered.length / itemsPerPage) ? 'disabled' : ''}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage(Math.ceil(filtered.length / itemsPerPage))}
+                >
+                  Last
+                </button>
+              </li>
+            </ul>
+          </nav>
+        )}
+      </div>
 
       {error && (
         <div className="toast-container position-fixed bottom-0 end-0 p-3">
@@ -419,12 +441,12 @@ const Dashboard = () => {
               <div className="toast-body">
                 {error}
               </div>
-              <button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setError('')}></button>
+              <button type="button" className="btn-close btn-close-danger me-2 m-auto" onClick={() => setError('')}></button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </DashboardLayout>
   )
 }
 
