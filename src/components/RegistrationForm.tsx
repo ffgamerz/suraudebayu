@@ -187,7 +187,8 @@ export default function RegistrationForm() {
                     value={formData.nama_pemohon}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    placeholder="Masukkan nama penuh"
+                    placeholder="Nama"
+                    style={{ color: '#adb5bd' }}
                   />
                   {touched.nama_pemohon && errors.nama_pemohon && <div className="invalid-feedback">{errors.nama_pemohon}</div>}
                 </div>
@@ -204,7 +205,8 @@ export default function RegistrationForm() {
                     value={formData.no_kad_pengenalan}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    placeholder="470911101234 (tanpa -)"
+                    placeholder="No. Kad Pengenalan"
+                    style={{ color: '#adb5bd' }}
                   />
                   {touched.no_kad_pengenalan && errors.no_kad_pengenalan && <div className="invalid-feedback">{errors.no_kad_pengenalan}</div>}
                 </div>
@@ -222,6 +224,7 @@ export default function RegistrationForm() {
                   rows={2}
                   value={formData.alamat_dalam_kad_pengenalan}
                   onChange={handleChange}
+                  style={{ color: '#adb5bd' }}
                     onBlur={handleBlur}
                     placeholder="Alamat seperti di kad pengenalan"
                 />
@@ -253,6 +256,7 @@ export default function RegistrationForm() {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="DB01-01-01 (Blok-Tingkat-Unit)"
+                    style={{ color: '#adb5bd' }}
                   />
                   {touched.no_unit && errors.no_unit && <div className="invalid-feedback">{errors.no_unit}</div>}
                 </div>
@@ -292,6 +296,7 @@ export default function RegistrationForm() {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="0123456789"
+                    style={{ color: '#adb5bd' }}
                   />
                   {touched.no_hp && errors.no_hp && <div className="invalid-feedback">{errors.no_hp}</div>}
                 </div>
@@ -307,6 +312,7 @@ export default function RegistrationForm() {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="nama@email.com (optional)"
+                    style={{ color: '#adb5bd' }}
                   />
                   {touched.email && errors.email && <div className="invalid-feedback">{errors.email}</div>}
                 </div>
