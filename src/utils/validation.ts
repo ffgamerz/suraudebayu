@@ -9,9 +9,9 @@ import type { RegistrationFormData } from '../lib/types'
 //   - Unit: 01-16
 
 const IC_REGEX = /^\d{12}$/
-// HP: exactly 10-11 digits, starts with 01, followed by [2-9], rest digits
-// No dashes, no spaces — raw digits only
-const HP_REGEX = /^01[2-9]\d{7,8}$/
+// HP: 9-11 digits, starts with 01, 1-9, rest digits
+// Covers all Malaysian mobile prefixes (011, 012, 013, 014, 017, 018, 019)
+const HP_REGEX = /^01[1-9]\d{7,9}$/
 const UNIT_REGEX = /^DB\d{2}-\d{2}-\d{2}$/
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
