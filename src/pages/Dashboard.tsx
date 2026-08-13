@@ -23,7 +23,7 @@ const BLOCK_COLORS: Record<string, { bg: string; text: string; border: string }>
 
 const Dashboard = () => {
   const [registrations, setRegistrations] = useState<RegistrationRow[]>([])
-  const [totalStats, setTotalStats] = useState<{ total: number; blocks: Record<string, number>; owners: Record<string, number>; today: number } | null>(null)
+  const [totalStats, setTotalStats] = useState<{ total: number; blocks: Record<string, number>; owners: Record<string, number>; today: number; householdTotal: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
@@ -54,13 +54,14 @@ const Dashboard = () => {
       // Fetch aggregate stats for ALL data (for stat cards)
       const { data: statsData, error: statsError } = await supabase
         .from('kariah_registrations')
-        .select('no_unit, status_pemilikan, created_at', { count: 'exact', head: false })
+        .select('no_unit, status_pemilikan, created_at, bilangan_isi_rumah', { count: 'exact', head: false })
 
       if (statsError) throw statsError
 
       const blockCounts: Record<string, number> = {}
       const ownerCounts: Record<string, number> = {}
       let todayCount = 0
+      let householdTotal = 0
       const todayStr = new Date().toDateString()
       ;(statsData || []).forEach((r) => {
         const block = r.no_unit?.split('-')[0] || 'Unknown'
@@ -68,6 +69,7 @@ const Dashboard = () => {
         const owner = r.status_pemilikan || 'Unknown'
         ownerCounts[owner] = (ownerCounts[owner] || 0) + 1
         if (new Date(r.created_at).toDateString() === todayStr) todayCount++
+        householdTotal += r.bilangan_isi_rumah || 0
       })
 
       const { count } = await supabase
@@ -79,6 +81,7 @@ const Dashboard = () => {
         blocks: blockCounts,
         owners: ownerCounts,
         today: todayCount,
+        householdTotal,
       })
     } catch (err) {
       setError((err as any)?.message || 'Gagal memuatkan data')
@@ -126,6 +129,7 @@ const Dashboard = () => {
         blocks: [],
         owners: [],
         today: 0,
+        household: 0,
       }
     }
     return {
@@ -140,6 +144,7 @@ const Dashboard = () => {
         count: v,
       })),
       today: totalStats.today,
+      household: totalStats.householdTotal,
     }
   }, [totalStats])
 
@@ -257,9 +262,9 @@ const Dashboard = () => {
             <div className="card h-100 stat-card-household">
               <div className="card-body text-center">
                 <i className="bi bi-house-chimney fs-1 mb-3 stat-icon"></i>
-                <p className="text-uppercase small text-muted mb-1 fw-semibold">Isi Rumah</p>
-                <h2 className={`fw-bold mb-0 ${stats.total === 0 ? 'text-muted' : 'text-dark'} fs-2`}>
-                  {stats.total}
+                <p className="text-uppercase small text-muted mb-1 fw-semibold">Total Isi Rumah</p>
+                <h2 className={`fw-bold mb-0 ${stats.household === 0 ? 'text-muted' : 'text-dark'} fs-2`}>
+                  {stats.household}
                 </h2>
               </div>
             </div>
