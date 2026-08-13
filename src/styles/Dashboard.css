@@ -237,12 +237,12 @@ body:has(.dashboard-app) .app-wrapper {
   margin-bottom: 0.5rem;
 }
 
-/* Flat black icons for stats - no background, no border-radius */
+/* Flat black Material Symbols - no background, no border-radius */
 .dashboard-app .stat-card .stat-icon.material-symbols-outlined {
   background: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  color: #212529;
+  color: #212529 !important;
   width: 24px;
   height: 24px;
   margin-bottom: 0.5rem;
