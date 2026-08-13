@@ -23,7 +23,7 @@ const BLOCK_COLORS: Record<string, { bg: string; text: string; border: string }>
 
 const Dashboard = () => {
   const [registrations, setRegistrations] = useState<RegistrationRow[]>([])
-  const [totalStats, setTotalStats] = useState<{ total: number; blocks: Record<string, number>; owners: Record<string, number>; today: number; householdTotal: number } | null>(null)
+  const [totalStats, setTotalStats] = useState<{ total: number; blocks: Record<string, number>; owners: Record<string, number>; marriages: Record<string, number>; today: number; householdTotal: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
@@ -54,12 +54,13 @@ const Dashboard = () => {
       // Fetch aggregate stats for ALL data (for stat cards)
       const { data: statsData, error: statsError } = await supabase
         .from('kariah_registrations')
-        .select('no_unit, status_pemilikan, created_at, bilangan_isi_rumah', { count: 'exact', head: false })
+        .select('no_unit, status_pemilikan, status_perkahwinan, created_at, bilangan_isi_rumah', { count: 'exact', head: false })
 
       if (statsError) throw statsError
 
       const blockCounts: Record<string, number> = {}
       const ownerCounts: Record<string, number> = {}
+      const marriageCounts: Record<string, number> = {}
       let todayCount = 0
       let householdTotal = 0
       const todayStr = new Date().toDateString()
@@ -68,6 +69,8 @@ const Dashboard = () => {
         blockCounts[block] = (blockCounts[block] || 0) + 1
         const owner = r.status_pemilikan || 'Unknown'
         ownerCounts[owner] = (ownerCounts[owner] || 0) + 1
+        const married = r.status_perkahwinan || 'Unknown'
+        marriageCounts[married] = (marriageCounts[married] || 0) + 1
         if (new Date(r.created_at).toDateString() === todayStr) todayCount++
         householdTotal += r.bilangan_isi_rumah || 0
       })
@@ -80,6 +83,7 @@ const Dashboard = () => {
         total: count || 0,
         blocks: blockCounts,
         owners: ownerCounts,
+        marriages: marriageCounts,
         today: todayCount,
         householdTotal,
       })
@@ -128,6 +132,7 @@ const Dashboard = () => {
         total: 0,
         blocks: [],
         owners: [],
+        marriages: [],
         today: 0,
         household: 0,
       }
@@ -140,6 +145,10 @@ const Dashboard = () => {
         key: k,
       })).sort((a, b) => a.key.localeCompare(b.key)),
       owners: Object.entries(totalStats.owners).map(([k, v]) => ({
+        label: k,
+        count: v,
+      })),
+      marriages: Object.entries(totalStats.marriages).map(([k, v]) => ({
         label: k,
         count: v,
       })),
@@ -165,7 +174,7 @@ const Dashboard = () => {
           <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-primary">
               <div className="card-body text-center">
-                <span className="material-symbols-outlined fs-1 mb-3 stat-icon">metrics</span>
+                <span className="material-symbols-outlined fs-1 mb-3 stat-icon">format_list_bulleted</span>
                 <p className="text-uppercase small text-muted mb-1 fw-semibold">Jumlah Pendaftaran</p>
                 <h2 className={`fw-bold mb-0 ${stats.total === 0 ? 'text-muted' : 'text-dark'} fs-2`}>{stats.total}</h2>
               </div>
@@ -175,10 +184,11 @@ const Dashboard = () => {
           {/* Block Breakdown — single card with small horizontal bars */}
           <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-block">
-              <div className="card-body">
+              <div className="card-body text-center">
                 <span className="material-symbols-outlined fs-1 mb-3 stat-icon">apartment</span>
                 <p className="text-uppercase small text-muted mb-2 fw-semibold">Pendaftaran Mengikut Blok</p>
-                {stats.blocks.map((b) => {
+                <div className="text-start">
+                  {stats.blocks.map((b) => {
                   const color = BLOCK_COLORS[b.key] || BLOCK_COLORS.DB01
                   const max = Math.max(...stats.blocks.map(x => x.count), 1)
                   const pct = (b.count / max) * 100
@@ -197,7 +207,9 @@ const Dashboard = () => {
                       </div>
                     </div>
                   )
-                })}
+                })
+                }
+                </div>
               </div>
             </div>
           </div>
@@ -205,14 +217,18 @@ const Dashboard = () => {
           {/* Pemilik & Penyewa — combined card with mini bars */}
           <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-pemilik">
-              <div className="card-body">
-                {(() => {
-                  const pemilikCount = stats.owners.find((o) => o.label === 'Pemilik')?.count || 0
-                  const penyewaCount = stats.owners.find((o) => o.label === 'Penyewa')?.count || 0
-                  return (
-                    <>
-                      <span className="material-symbols-outlined fs-1 mb-3 stat-icon">groups</span>
-                      <p className="text-uppercase small text-muted mb-2 fw-semibold">Pemilik & Penyewa</p>
+              <div className="card-body text-center">
+              {(() => {
+                const pemilikCount = stats.owners.find((o) => o.label === 'Pemilik')?.count || 0
+                const penyewaCount = stats.owners.find((o) => o.label === 'Penyewa')?.count || 0
+                const ownerTotal = pemilikCount + penyewaCount
+                const pemilikPct = ownerTotal > 0 ? (pemilikCount / ownerTotal) * 100 : 0
+                const penyewaPct = ownerTotal > 0 ? (penyewaCount / ownerTotal) * 100 : 0
+                return (
+                  <>
+                    <span className="material-symbols-outlined fs-1 mb-3 stat-icon">groups</span>
+                    <p className="text-uppercase small text-muted mb-2 fw-semibold">Pemilik & Penyewa</p>
+                    <div className="text-start">
                       <div className="mb-2">
                         <div className="d-flex justify-content-between small text-muted">
                           <span>Pemilik</span>
@@ -222,7 +238,7 @@ const Dashboard = () => {
                           <div
                             className="progress-bar"
                             role="progressbar"
-                            style={{ width: `${pemilikCount > 0 ? 100 : 0}%`, backgroundColor: '#28a745' }}
+                            style={{ width: `${pemilikPct}%`, backgroundColor: '#28a745' }}
                           ></div>
                         </div>
                       </div>
@@ -235,13 +251,14 @@ const Dashboard = () => {
                           <div
                             className="progress-bar"
                             role="progressbar"
-                            style={{ width: `${penyewaCount > 0 ? 100 : 0}%`, backgroundColor: penyewaCount > 0 ? '#ffc107' : '#6c757d' }}
+                            style={{ width: `${penyewaPct}%`, backgroundColor: penyewaPct > 0 ? '#ffc107' : '#6c757d' }}
                           ></div>
                         </div>
                       </div>
-                    </>
-                  )
-                })()}
+                    </div>
+                  </>
+                )
+              })()}
               </div>
             </div>
           </div>
@@ -262,10 +279,47 @@ const Dashboard = () => {
             <div className="card h-100 stat-card-household">
               <div className="card-body text-center">
                 <span className="material-symbols-outlined fs-1 mb-3 stat-icon">home</span>
-                <p className="text-uppercase small text-muted mb-1 fw-semibold">Total Isi Rumah</p>
+                <p className="text-uppercase small text-muted mb-1 fw-semibold">Jumlah Isi Rumah</p>
                 <h2 className={`fw-bold mb-0 ${stats.household === 0 ? 'text-muted' : 'text-dark'} fs-2`}>
                   {stats.household}
                 </h2>
+              </div>
+            </div>
+          </div>
+          {/* Status Perkahwinan — soft orange background */}
+          <div className="col-12 col-sm-6 col-lg-2 px-1">
+            <div className="card h-100 stat-card-marriage">
+              <div className="card-body text-center">
+                <span className="material-symbols-outlined fs-1 mb-3 stat-icon">volunteer_activism</span>
+                <p className="text-uppercase small text-muted mb-1 fw-semibold">Status Perkahwinan</p>
+                {(() => {
+                  const marriageTotal = stats.marriages.reduce((sum, m) => sum + m.count, 0)
+                  return (
+                    <div className="text-start">
+                      {stats.marriages.map((m, idx) => {
+                        const pct = marriageTotal > 0 ? (m.count / marriageTotal) * 100 : 0
+                        const barColor = m.label === 'Berkahwin' ? '#22c55e' :
+                                         m.label === 'Bujang' ? '#eab308' :
+                                         '#94a3b8'
+                        return (
+                          <div key={m.label} className={idx === 0 ? '' : 'mt-2'}>
+                            <div className="d-flex justify-content-between small text-muted">
+                              <span>{m.label}</span>
+                              <span className="fw-medium text-dark">{m.count}</span>
+                            </div>
+                            <div className="progress" style={{ height: '6px' }}>
+                              <div
+                                className="progress-bar"
+                                role="progressbar"
+                                style={{ width: `${pct}%`, backgroundColor: barColor }}
+                              ></div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
               </div>
             </div>
           </div>
