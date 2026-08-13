@@ -194,3 +194,8 @@ input[type="date"] {
   }
 }
 
+/* ===== Placeholder styling: lighter color for better readability ===== */
+.placeholder-light::placeholder {
+  color: #adb5bd;
+}
+

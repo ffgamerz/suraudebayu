@@ -181,14 +181,13 @@ export default function RegistrationForm() {
                   </label>
                   <input
                     type="text"
-                    className={`form-control form-control-sm ${touched.nama_pemohon && errors.nama_pemohon ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm placeholder-light ${touched.nama_pemohon && errors.nama_pemohon ? 'is-invalid' : ''}`}
                     id="nama_pemohon"
                     name="nama_pemohon"
                     value={formData.nama_pemohon}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="Nama"
-                    style={{ color: '#adb5bd' }}
                   />
                   {touched.nama_pemohon && errors.nama_pemohon && <div className="invalid-feedback">{errors.nama_pemohon}</div>}
                 </div>
@@ -199,14 +198,13 @@ export default function RegistrationForm() {
                   </label>
                   <input
                     type="text"
-                    className={`form-control form-control-sm ${touched.no_kad_pengenalan && errors.no_kad_pengenalan ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm placeholder-light ${touched.no_kad_pengenalan && errors.no_kad_pengenalan ? 'is-invalid' : ''}`}
                     id="no_kad_pengenalan"
                     name="no_kad_pengenalan"
                     value={formData.no_kad_pengenalan}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="No. Kad Pengenalan"
-                    style={{ color: '#adb5bd' }}
                   />
                   {touched.no_kad_pengenalan && errors.no_kad_pengenalan && <div className="invalid-feedback">{errors.no_kad_pengenalan}</div>}
                 </div>
@@ -218,13 +216,12 @@ export default function RegistrationForm() {
                   Alamat Dalam Kad Pengenalan <span className="text-danger">*</span>
                 </label>
                 <textarea
-                  className={`form-control form-control-sm ${touched.alamat_dalam_kad_pengenalan && errors.alamat_dalam_kad_pengenalan ? 'is-invalid' : ''}`}
+                  className={`form-control form-control-sm placeholder-light ${touched.alamat_dalam_kad_pengenalan && errors.alamat_dalam_kad_pengenalan ? 'is-invalid' : ''}`}
                   id="alamat_dalam_kad_pengenalan"
                   name="alamat_dalam_kad_pengenalan"
                   rows={2}
                   value={formData.alamat_dalam_kad_pengenalan}
                   onChange={handleChange}
-                  style={{ color: '#adb5bd' }}
                     onBlur={handleBlur}
                     placeholder="Alamat seperti di kad pengenalan"
                 />
@@ -249,14 +246,13 @@ export default function RegistrationForm() {
                   </label>
                   <input
                     type="text"
-                    className={`form-control form-control-sm ${touched.no_unit && errors.no_unit ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm placeholder-light ${touched.no_unit && errors.no_unit ? 'is-invalid' : ''}`}
                     id="no_unit"
                     name="no_unit"
                     value={formData.no_unit}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="DB01-01-01 (Blok-Tingkat-Unit)"
-                    style={{ color: '#adb5bd' }}
                   />
                   {touched.no_unit && errors.no_unit && <div className="invalid-feedback">{errors.no_unit}</div>}
                 </div>
@@ -289,14 +285,13 @@ export default function RegistrationForm() {
                   </label>
                   <input
                     type="text"
-                    className={`form-control form-control-sm ${touched.no_hp && errors.no_hp ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm placeholder-light ${touched.no_hp && errors.no_hp ? 'is-invalid' : ''}`}
                     id="no_hp"
                     name="no_hp"
                     value={formData.no_hp}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="0123456789"
-                    style={{ color: '#adb5bd' }}
                   />
                   {touched.no_hp && errors.no_hp && <div className="invalid-feedback">{errors.no_hp}</div>}
                 </div>
@@ -305,14 +300,13 @@ export default function RegistrationForm() {
                   <label htmlFor="email" className="form-label">Email</label>
                   <input
                     type="email"
-                    className={`form-control form-control-sm ${touched.email && errors.email ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm placeholder-light ${touched.email && errors.email ? 'is-invalid' : ''}`}
                     id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="nama@email.com (optional)"
-                    style={{ color: '#adb5bd' }}
                   />
                   {touched.email && errors.email && <div className="invalid-feedback">{errors.email}</div>}
                 </div>
