@@ -250,7 +250,7 @@ const Dashboard = () => {
           <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-activity">
               <div className="card-body text-center">
-                <i className="bi bi-bell fs-1 mb-3 stat-icon"></i>
+                <span className="material-symbols-outlined fs-1 mb-3 stat-icon">history</span>
                 <p className="text-uppercase small text-muted mb-1 fw-semibold">Aktiviti Hari Ini</p>
                 <h2 className={`fw-bold mb-0 ${stats.today === 0 ? 'text-muted' : 'text-dark'} fs-2`}>{stats.today}</h2>
               </div>
@@ -261,7 +261,7 @@ const Dashboard = () => {
           <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-household">
               <div className="card-body text-center">
-                <i className="bi bi-house-chimney fs-1 mb-3 stat-icon"></i>
+                <span className="material-symbols-outlined fs-1 mb-3 stat-icon">home</span>
                 <p className="text-uppercase small text-muted mb-1 fw-semibold">Total Isi Rumah</p>
                 <h2 className={`fw-bold mb-0 ${stats.household === 0 ? 'text-muted' : 'text-dark'} fs-2`}>
                   {stats.household}
