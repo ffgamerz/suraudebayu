@@ -165,7 +165,7 @@ const Dashboard = () => {
           <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-primary">
               <div className="card-body text-center">
-                <i className="bi bi-speedometer2 fs-1 mb-3 stat-icon"></i>
+                <span className="material-symbols-outlined fs-1 mb-3 stat-icon">metrics</span>
                 <p className="text-uppercase small text-muted mb-1 fw-semibold">Jumlah Pendaftaran</p>
                 <h2 className={`fw-bold mb-0 ${stats.total === 0 ? 'text-muted' : 'text-dark'} fs-2`}>{stats.total}</h2>
               </div>
@@ -176,7 +176,7 @@ const Dashboard = () => {
           <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-block">
               <div className="card-body">
-                <i className="bi bi-building fs-1 mb-3 stat-icon"></i>
+                <span className="material-symbols-outlined fs-1 mb-3 stat-icon">apartment</span>
                 <p className="text-uppercase small text-muted mb-2 fw-semibold">Pendaftaran Mengikut Blok</p>
                 {stats.blocks.map((b) => {
                   const color = BLOCK_COLORS[b.key] || BLOCK_COLORS.DB01
@@ -211,7 +211,7 @@ const Dashboard = () => {
                   const penyewaCount = stats.owners.find((o) => o.label === 'Penyewa')?.count || 0
                   return (
                     <>
-                      <i className="bi bi-people fs-1 mb-3 stat-icon"></i>
+                      <span className="material-symbols-outlined fs-1 mb-3 stat-icon">groups</span>
                       <p className="text-uppercase small text-muted mb-2 fw-semibold">Pemilik & Penyewa</p>
                       <div className="mb-2">
                         <div className="d-flex justify-content-between small text-muted">

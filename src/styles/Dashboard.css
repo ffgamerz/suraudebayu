@@ -237,6 +237,20 @@ body:has(.dashboard-app) .app-wrapper {
   margin-bottom: 0.5rem;
 }
 
+/* Flat black icons for stats - no background, no border-radius */
+.dashboard-app .stat-card .stat-icon.material-symbols-outlined {
+  background: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  color: #212529;
+  width: 24px;
+  height: 24px;
+  margin-bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .dashboard-app .stat-card .stat-label {
   margin-bottom: 0.25rem;
 }
