@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import type { RegistrationFormData } from '../lib/types'
 import DashboardLayout from '../components/DashboardLayout'
 import '../styles/Dashboard.css'
+import { censorIC } from '../lib/utils'
 
 type RegistrationRow = RegistrationFormData & {
   id: number
@@ -210,6 +211,7 @@ const ExportPage = () => {
     }
     if (field.key === 'pengakuan') return val ? 'Ya' : 'Tidak'
     if (field.key === 'signature') return ''
+    if (field.key === 'no_kad_pengenalan') return censorIC(val as string)
     return val == null || val === '' ? '—' : String(val)
   }
 

@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import type { RegistrationFormData } from '../lib/types'
 import DashboardLayout from '../components/DashboardLayout'
 import '../styles/Dashboard.css'
+import { censorIC } from '../lib/utils'
 
 type RegistrationRow = RegistrationFormData & {
   id: number
@@ -211,7 +212,7 @@ const AhliKariah = () => {
                     <tr key={r.id}>
                       <td>{startIndex + i + 1}</td>
                       <td className="table-name">{r.nama_pemohon}</td>
-                      <td>{r.no_kad_pengenalan}</td>
+                      <td>{censorIC(r.no_kad_pengenalan)}</td>
                       <td>{r.alamat_dalam_kad_pengenalan}</td>
                       <td>{r.no_unit}</td>
                       <td>
