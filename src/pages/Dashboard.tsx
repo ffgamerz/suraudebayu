@@ -155,9 +155,9 @@ const Dashboard = () => {
     <DashboardLayout mobileTitle="Dashboard">
       <div className="container-fluid px-0">
         {/* Stats Cards — using native Bootstrap card + utility classes */}
-        <div className="row g-4 mb-4">
+        <div className="row g-3 mb-4 px-2">
           {/* Total Registrations — soft blue background */}
-          <div className="col-12 col-md-6 col-lg-3">
+          <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-primary">
               <div className="card-body text-center">
                 <i className="bi bi-speedometer2 fs-1 mb-3 stat-icon"></i>
@@ -168,7 +168,7 @@ const Dashboard = () => {
           </div>
 
           {/* Block Breakdown — single card with small horizontal bars */}
-          <div className="col-12 col-md-6 col-lg-3">
+          <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-block">
               <div className="card-body">
                 <i className="bi bi-building fs-1 mb-3 stat-icon"></i>
@@ -198,7 +198,7 @@ const Dashboard = () => {
           </div>
 
           {/* Pemilik & Penyewa — combined card with mini bars */}
-          <div className="col-12 col-md-6 col-lg-3">
+          <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-pemilik">
               <div className="card-body">
                 {(() => {
@@ -242,12 +242,25 @@ const Dashboard = () => {
           </div>
 
           {/* Aktiviti Hari Ini — soft purple background */}
-          <div className="col-12 col-md-6 col-lg-3">
+          <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-activity">
               <div className="card-body text-center">
                 <i className="bi bi-bell fs-1 mb-3 stat-icon"></i>
                 <p className="text-uppercase small text-muted mb-1 fw-semibold">Aktiviti Hari Ini</p>
                 <h2 className={`fw-bold mb-0 ${stats.today === 0 ? 'text-muted' : 'text-dark'} fs-2`}>{stats.today}</h2>
+              </div>
+            </div>
+          </div>
+
+          {/* Total Isi Rumah — soft green background */}
+          <div className="col-12 col-sm-6 col-lg-2 px-1">
+            <div className="card h-100 stat-card-household">
+              <div className="card-body text-center">
+                <i className="bi bi-house-chimney fs-1 mb-3 stat-icon"></i>
+                <p className="text-uppercase small text-muted mb-1 fw-semibold">Isi Rumah</p>
+                <h2 className={`fw-bold mb-0 ${stats.total === 0 ? 'text-muted' : 'text-dark'} fs-2`}>
+                  {stats.total}
+                </h2>
               </div>
             </div>
           </div>

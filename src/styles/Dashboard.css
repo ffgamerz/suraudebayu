@@ -157,7 +157,8 @@ body:has(.dashboard-app) .app-wrapper {
 .dashboard-app .stat-card-primary,
 .dashboard-app .stat-card-pemilik,
 .dashboard-app .stat-card-activity,
-.dashboard-app .stat-card-block {
+.dashboard-app .stat-card-block,
+.dashboard-app .stat-card-household {
   overflow: hidden;
 }
 
@@ -213,6 +214,17 @@ body:has(.dashboard-app) .app-wrapper {
 .dashboard-app .stat-card-block .stat-icon {
   background: rgba(108, 117, 125, 0.15);
   color: #6c757d;
+}
+
+/* Soft green background for Total Household */
+.dashboard-app .stat-card-household {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 1px solid #bbf7d0;
+}
+
+.dashboard-app .stat-card-household .stat-icon {
+  background: rgba(40, 167, 69, 0.15);
+  color: #28a745;
 }
 
 .dashboard-app .stat-card .stat-icon {
