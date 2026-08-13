@@ -64,16 +64,16 @@ const Dashboard = () => {
       let todayCount = 0
       let householdTotal = 0
       const todayStr = new Date().toDateString()
-      ;(statsData || []).forEach((r) => {
-        const block = r.no_unit?.split('-')[0] || 'Unknown'
-        blockCounts[block] = (blockCounts[block] || 0) + 1
-        const owner = r.status_pemilikan || 'Unknown'
-        ownerCounts[owner] = (ownerCounts[owner] || 0) + 1
-        const married = r.status_perkahwinan || 'Unknown'
-        marriageCounts[married] = (marriageCounts[married] || 0) + 1
-        if (new Date(r.created_at).toDateString() === todayStr) todayCount++
-        householdTotal += r.bilangan_isi_rumah || 0
-      })
+        ; (statsData || []).forEach((r) => {
+          const block = r.no_unit?.split('-')[0] || 'Unknown'
+          blockCounts[block] = (blockCounts[block] || 0) + 1
+          const owner = r.status_pemilikan || 'Unknown'
+          ownerCounts[owner] = (ownerCounts[owner] || 0) + 1
+          const married = r.status_perkahwinan || 'Unknown'
+          marriageCounts[married] = (marriageCounts[married] || 0) + 1
+          if (new Date(r.created_at).toDateString() === todayStr) todayCount++
+          householdTotal += r.bilangan_isi_rumah || 0
+        })
 
       const { count } = await supabase
         .from('kariah_registrations')
@@ -97,8 +97,8 @@ const Dashboard = () => {
   const filtered = useMemo(() => {
     const result = registrations.filter((r) => {
       if (search && !r.nama_pemohon?.toLowerCase().includes(search.toLowerCase())
-                  && !r.no_kad_pengenalan?.includes(search)
-                  && !r.no_unit?.toLowerCase().includes(search.toLowerCase())) {
+        && !r.no_kad_pengenalan?.includes(search)
+        && !r.no_unit?.toLowerCase().includes(search.toLowerCase())) {
         return false
       }
       if (filterBlock && !r.no_unit?.startsWith(filterBlock)) return false
@@ -189,26 +189,26 @@ const Dashboard = () => {
                 <p className="text-uppercase small text-muted mb-2 fw-semibold">Pendaftaran Mengikut Blok</p>
                 <div className="text-start">
                   {stats.blocks.map((b) => {
-                  const color = BLOCK_COLORS[b.key] || BLOCK_COLORS.DB01
-                  const max = Math.max(...stats.blocks.map(x => x.count), 1)
-                  const pct = (b.count / max) * 100
-                  return (
-                    <div key={b.key} className="mb-2">
-                      <div className="d-flex justify-content-between small text-muted">
-                        <span>{b.label}</span>
-                        <span className="fw-medium text-dark">{b.count}</span>
+                    const color = BLOCK_COLORS[b.key] || BLOCK_COLORS.DB01
+                    const max = Math.max(...stats.blocks.map(x => x.count), 1)
+                    const pct = (b.count / max) * 100
+                    return (
+                      <div key={b.key} className="mb-2">
+                        <div className="d-flex justify-content-between small text-muted">
+                          <span>{b.label}</span>
+                          <span className="fw-medium text-dark">{b.count}</span>
+                        </div>
+                        <div className="progress" style={{ height: '6px' }}>
+                          <div
+                            className="progress-bar"
+                            role="progressbar"
+                            style={{ width: `${pct}%`, backgroundColor: color.text, boxShadow: `0 0 6px ${color.bg}` }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="progress" style={{ height: '6px' }}>
-                        <div
-                          className="progress-bar"
-                          role="progressbar"
-                          style={{ width: `${pct}%`, backgroundColor: color.text, boxShadow: `0 0 6px ${color.bg}` }}
-                        ></div>
-                      </div>
-                    </div>
-                  )
-                })
-                }
+                    )
+                  })
+                  }
                 </div>
               </div>
             </div>
@@ -218,47 +218,47 @@ const Dashboard = () => {
           <div className="col-12 col-sm-6 col-lg-2 px-1">
             <div className="card h-100 stat-card-pemilik">
               <div className="card-body text-center">
-              {(() => {
-                const pemilikCount = stats.owners.find((o) => o.label === 'Pemilik')?.count || 0
-                const penyewaCount = stats.owners.find((o) => o.label === 'Penyewa')?.count || 0
-                const ownerTotal = pemilikCount + penyewaCount
-                const pemilikPct = ownerTotal > 0 ? (pemilikCount / ownerTotal) * 100 : 0
-                const penyewaPct = ownerTotal > 0 ? (penyewaCount / ownerTotal) * 100 : 0
-                return (
-                  <>
-                    <span className="material-symbols-outlined fs-1 mb-3 stat-icon">groups</span>
-                    <p className="text-uppercase small text-muted mb-2 fw-semibold">Pemilik & Penyewa</p>
-                    <div className="text-start">
-                      <div className="mb-2">
-                        <div className="d-flex justify-content-between small text-muted">
-                          <span>Pemilik</span>
-                          <span className="fw-medium text-dark">{pemilikCount}</span>
+                {(() => {
+                  const pemilikCount = stats.owners.find((o) => o.label === 'Pemilik')?.count || 0
+                  const penyewaCount = stats.owners.find((o) => o.label === 'Penyewa')?.count || 0
+                  const ownerTotal = pemilikCount + penyewaCount
+                  const pemilikPct = ownerTotal > 0 ? (pemilikCount / ownerTotal) * 100 : 0
+                  const penyewaPct = ownerTotal > 0 ? (penyewaCount / ownerTotal) * 100 : 0
+                  return (
+                    <>
+                      <span className="material-symbols-outlined fs-1 mb-3 stat-icon">groups</span>
+                      <p className="text-uppercase small text-muted mb-2 fw-semibold">Pemilik & Penyewa</p>
+                      <div className="text-start">
+                        <div className="mb-2">
+                          <div className="d-flex justify-content-between small text-muted">
+                            <span>Pemilik</span>
+                            <span className="fw-medium text-dark">{pemilikCount}</span>
+                          </div>
+                          <div className="progress" style={{ height: '6px' }}>
+                            <div
+                              className="progress-bar"
+                              role="progressbar"
+                              style={{ width: `${pemilikPct}%`, backgroundColor: '#28a745' }}
+                            ></div>
+                          </div>
                         </div>
-                        <div className="progress" style={{ height: '6px' }}>
-                          <div
-                            className="progress-bar"
-                            role="progressbar"
-                            style={{ width: `${pemilikPct}%`, backgroundColor: '#28a745' }}
-                          ></div>
+                        <div className="mb-2">
+                          <div className="d-flex justify-content-between small text-muted">
+                            <span>Penyewa</span>
+                            <span className="fw-medium text-dark">{penyewaCount}</span>
+                          </div>
+                          <div className="progress" style={{ height: '6px' }}>
+                            <div
+                              className="progress-bar"
+                              role="progressbar"
+                              style={{ width: `${penyewaPct}%`, backgroundColor: penyewaPct > 0 ? '#ffc107' : '#6c757d' }}
+                            ></div>
+                          </div>
                         </div>
                       </div>
-                      <div className="mb-2">
-                        <div className="d-flex justify-content-between small text-muted">
-                          <span>Penyewa</span>
-                          <span className="fw-medium text-dark">{penyewaCount}</span>
-                        </div>
-                        <div className="progress" style={{ height: '6px' }}>
-                          <div
-                            className="progress-bar"
-                            role="progressbar"
-                            style={{ width: `${penyewaPct}%`, backgroundColor: penyewaPct > 0 ? '#ffc107' : '#6c757d' }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )
-              })()}
+                    </>
+                  )
+                })()}
               </div>
             </div>
           </div>
@@ -299,8 +299,8 @@ const Dashboard = () => {
                       {stats.marriages.map((m, idx) => {
                         const pct = marriageTotal > 0 ? (m.count / marriageTotal) * 100 : 0
                         const barColor = m.label === 'Berkahwin' ? '#22c55e' :
-                                         m.label === 'Bujang' ? '#eab308' :
-                                         '#94a3b8'
+                          m.label === 'Bujang' ? '#eab308' :
+                            '#94a3b8'
                         return (
                           <div key={m.label} className={idx === 0 ? '' : 'mt-2'}>
                             <div className="d-flex justify-content-between small text-muted">
@@ -447,7 +447,7 @@ const Dashboard = () => {
                   )}
                 </tbody>
               </table>
-              </div>
+            </div>
           </div>
         </div>
       </div>
