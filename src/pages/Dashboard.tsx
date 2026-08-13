@@ -23,10 +23,9 @@ const BLOCK_COLORS: Record<string, { bg: string; text: string; border: string }>
 
 const Dashboard = () => {
   const [registrations, setRegistrations] = useState<RegistrationRow[]>([])
+  const [totalStats, setTotalStats] = useState<{ total: number; blocks: Record<string, number>; owners: Record<string, number>; today: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
   const [search, setSearch] = useState('')
   const [filterBlock, setFilterBlock] = useState('')
   const [filterOwner, setFilterOwner] = useState('')
@@ -42,13 +41,45 @@ const Dashboard = () => {
   const fetchRegistrations = async () => {
     setLoading(true)
     try {
+      // Fetch 10 latest registrations for the table
       const { data, error: fetchError } = await supabase
         .from('kariah_registrations')
         .select('*')
         .order('created_at', { ascending: false })
+        .limit(10)
 
       if (fetchError) throw fetchError
       setRegistrations(data || [])
+
+      // Fetch aggregate stats for ALL data (for stat cards)
+      const { data: statsData, error: statsError } = await supabase
+        .from('kariah_registrations')
+        .select('no_unit, status_pemilikan, created_at', { count: 'exact', head: false })
+
+      if (statsError) throw statsError
+
+      const blockCounts: Record<string, number> = {}
+      const ownerCounts: Record<string, number> = {}
+      let todayCount = 0
+      const todayStr = new Date().toDateString()
+      ;(statsData || []).forEach((r) => {
+        const block = r.no_unit?.split('-')[0] || 'Unknown'
+        blockCounts[block] = (blockCounts[block] || 0) + 1
+        const owner = r.status_pemilikan || 'Unknown'
+        ownerCounts[owner] = (ownerCounts[owner] || 0) + 1
+        if (new Date(r.created_at).toDateString() === todayStr) todayCount++
+      })
+
+      const { count } = await supabase
+        .from('kariah_registrations')
+        .select('*', { count: 'exact', head: true })
+
+      setTotalStats({
+        total: count || 0,
+        blocks: blockCounts,
+        owners: ownerCounts,
+        today: todayCount,
+      })
     } catch (err) {
       setError((err as any)?.message || 'Gagal memuatkan data')
     } finally {
@@ -85,63 +116,32 @@ const Dashboard = () => {
     return result
   }, [registrations, search, filterBlock, filterOwner, dateFrom, dateTo, sortKey, sortOrder])
 
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginated = filtered.slice(startIndex, startIndex + itemsPerPage)
+  const filteredList = filtered
 
+  // Stat cards use full-dataset aggregates (totalStats); table uses filteredList
   const stats = useMemo(() => {
-    const blockCounts: Record<string, number> = {}
-    const ownerCounts: Record<string, number> = {}
-    registrations.forEach((r) => {
-      const block = r.no_unit?.split('-')[0] || 'Unknown'
-      blockCounts[block] = (blockCounts[block] || 0) + 1
-      const owner = r.status_pemilikan || 'Unknown'
-      ownerCounts[owner] = (ownerCounts[owner] || 0) + 1
-    })
-
+    if (!totalStats) {
+      return {
+        total: 0,
+        blocks: [],
+        owners: [],
+        today: 0,
+      }
+    }
     return {
-      total: registrations.length,
-      blocks: Object.entries(blockCounts).map(([k, v]) => ({
+      total: totalStats.total,
+      blocks: Object.entries(totalStats.blocks).map(([k, v]) => ({
         label: BLOCK_LABELS[k] || k,
         count: v,
         key: k,
-      })),
-      owners: Object.entries(ownerCounts).map(([k, v]) => ({
+      })).sort((a, b) => a.key.localeCompare(b.key)),
+      owners: Object.entries(totalStats.owners).map(([k, v]) => ({
         label: k,
         count: v,
       })),
-      today: filtered.filter(r => new Date(r.created_at).toDateString() === new Date().toDateString()).length,
+      today: totalStats.today,
     }
-  }, [registrations, filtered])
-
-  const exportCSV = () => {
-    const headers = ['No', 'Nama Pemohon', 'No. Kad Pengenalan', 'Alamat', 'No Unit',
-      'Pemilik', 'No H/P', 'Email', 'Perkahwinan', 'Tempoh', 'Isi Rumah', 'Tarikh']
-    const csvRows = [
-      headers.join(','),
-      ...filtered.map((r, i) => [
-        startIndex + i + 1,
-        `"${r.nama_pemohon}"`,
-        r.no_kad_pengenalan,
-        `"${r.alamat_dalam_kad_pengenalan}"`,
-        r.no_unit,
-        r.status_pemilikan,
-        r.no_hp,
-        r.email || '',
-        r.status_perkahwinan,
-        r.tempoh_masa_menetap,
-        r.bilangan_isi_rumah,
-        new Date(r.created_at).toLocaleDateString('ms-MY'),
-      ].join(','))
-    ]
-    const csvContent = csvRows.join('\n')
-    const blob = new Blob([csvContent], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `kariah_suraudebayu_${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+  }, [totalStats])
 
   const clearAllFilters = () => {
     setSearch('')
@@ -149,7 +149,6 @@ const Dashboard = () => {
     setFilterOwner('')
     setDateFrom('')
     setDateTo('')
-    setCurrentPage(1)
   }
 
   return (
@@ -270,12 +269,9 @@ const Dashboard = () => {
                   className="form-control bg-light text-dark border-secondary"
                   placeholder="Cari nama, IC, unit..."
                   value={search}
-                  onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
+                  onChange={(e) => { setSearch(e.target.value) }}
                 />
               </div>
-              <button className="btn btn-sm btn-outline-success d-none d-sm-inline-block" onClick={exportCSV}>
-                <i className="bi bi-download me-1"></i> Export CSV
-              </button>
             </div>
           </div>
 
@@ -289,7 +285,7 @@ const Dashboard = () => {
                   <select
                     className="form-select form-select-sm bg-light text-dark border-secondary"
                     value={filterBlock}
-                    onChange={(e) => { setFilterBlock(e.target.value); setCurrentPage(1) }}
+                    onChange={(e) => { setFilterBlock(e.target.value) }}
                   >
                     <option value="">Semua</option>
                     <option value="DB01">Blok 1</option>
@@ -302,7 +298,7 @@ const Dashboard = () => {
                   <select
                     className="form-select form-select-sm bg-light text-dark border-secondary"
                     value={filterOwner}
-                    onChange={(e) => { setFilterOwner(e.target.value); setCurrentPage(1) }}
+                    onChange={(e) => { setFilterOwner(e.target.value) }}
                   >
                     <option value="">Semua</option>
                     <option value="Pemilik">Pemilik</option>
@@ -315,7 +311,7 @@ const Dashboard = () => {
                     type="date"
                     className="form-control form-control-sm bg-light text-dark border-secondary"
                     value={dateFrom}
-                    onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1) }}
+                    onChange={(e) => { setDateFrom(e.target.value) }}
                   />
                 </div>
                 <div className="col-6 col-lg-auto">
@@ -324,7 +320,7 @@ const Dashboard = () => {
                     type="date"
                     className="form-control form-control-sm bg-light text-dark border-secondary"
                     value={dateTo}
-                    onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1) }}
+                    onChange={(e) => { setDateTo(e.target.value) }}
                   />
                 </div>
                 <div className="col-12 col-lg-auto">
@@ -356,16 +352,16 @@ const Dashboard = () => {
                         </div>
                       </td>
                     </tr>
-                  ) : paginated.length === 0 ? (
+                  ) : filteredList.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="text-center py-4 text-muted">
                         Tiada rekod dijumpai.
                       </td>
                     </tr>
                   ) : (
-                    paginated.map((r, i) => (
+                    filteredList.map((r, i) => (
                       <tr key={r.id}>
-                        <td>{startIndex + i + 1}</td>
+                        <td>{i + 1}</td>
                         <td className="table-name">{r.nama_pemohon}</td>
                         <td>{r.no_unit}</td>
                         <td>
@@ -382,58 +378,6 @@ const Dashboard = () => {
               </div>
           </div>
         </div>
-
-        {/* Pagination */}
-        {filtered.length > itemsPerPage && (
-          <nav aria-label="Page navigation" className="mt-3">
-            <ul className="pagination justify-content-center">
-              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                <button className="page-link" onClick={() => setCurrentPage(1)}>
-                  First
-                </button>
-              </li>
-              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  aria-label="Previous"
-                >
-                  <i className="bi bi-chevron-left"></i>
-                </button>
-              </li>
-              {Array.from({ length: Math.ceil(filtered.length / itemsPerPage) }).map((_, idx) => {
-                const pageNum = idx + 1
-                const startPage = Math.max(1, Math.min(pageNum - 2, Math.ceil(filtered.length / itemsPerPage) - 4))
-                const endPage = Math.min(Math.ceil(filtered.length / itemsPerPage), startPage + 4)
-                if (pageNum < startPage || pageNum > endPage) return null
-                return (
-                  <li key={pageNum} className={`page-item ${currentPage === pageNum ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => setCurrentPage(pageNum)}>
-                      {pageNum}
-                    </button>
-                  </li>
-                )
-              })}
-              <li className={`page-item ${currentPage === Math.ceil(filtered.length / itemsPerPage) ? 'disabled' : ''}`}>
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  aria-label="Next"
-                >
-                  <i className="bi bi-chevron-right"></i>
-                </button>
-              </li>
-              <li className={`page-item ${currentPage === Math.ceil(filtered.length / itemsPerPage) ? 'disabled' : ''}`}>
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage(Math.ceil(filtered.length / itemsPerPage))}
-                >
-                  Last
-                </button>
-              </li>
-            </ul>
-          </nav>
-        )}
       </div>
 
       {error && (
